@@ -18,8 +18,18 @@ spec:
             replication_factor: 1
           storage:
             type: 'filesystem'
-        lokiCanary:
+        test:
           enabled: false
+
+
+        memcached:
+          chunk_cache:
+            enabled: false
+          write_dedupe_cache:
+            enabled: false
+          index_queries_cache_enabled: false
+          frontend_cache:
+            enabled: false
         deploymentMode: SingleBinary
         singleBinary:
           replicas: 1
