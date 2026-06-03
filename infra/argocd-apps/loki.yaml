@@ -17,8 +17,17 @@ spec:
             replication_factor: 1
           storage:
             type: 'filesystem'
+        deploymentMode: SingleBinary
         singleBinary:
           replicas: 1
+        simpleScalable:
+          enabled: false
+        backend:
+          replicas: 0
+        read:
+          replicas: 0
+        write:
+          replicas: 0
   destination:
     server: "https://kubernetes.default.svc"
     namespace: monitoring
