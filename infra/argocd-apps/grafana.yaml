@@ -9,6 +9,16 @@ spec:
     chart: grafana
     repoURL: https://grafana.github.io/helm-charts
     targetRevision: 7.3.0
+    helm:
+      values: |
+        ingress:
+          enabled: true
+          ingressClassName: tailscale
+          hosts:
+            - grafana.tail412374.ts.net
+          tls:
+            - hosts:
+                - grafana.tail412374.ts.net
   destination:
     server: "https://kubernetes.default.svc"
     namespace: monitoring
