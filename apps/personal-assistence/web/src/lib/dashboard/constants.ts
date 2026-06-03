@@ -1,0 +1,3 @@
+export const MAX_HOUR_GRANULARITY_DAYS = 30;
+
+export const DASHBOARD_TASKS_PAGE_SIZE = 20;
