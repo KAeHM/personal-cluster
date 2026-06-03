@@ -49,11 +49,7 @@ spec:
                   key: DATABASE_URL
       containers:
         - name: web-app
-<<<<<<< HEAD
           image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:sha-1d29455
-=======
-          image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:1d29455
->>>>>>> b819dc1dcad8abdd56e0cf1db17c449788d9418a
           ports:
             - containerPort: 3000
           env:
