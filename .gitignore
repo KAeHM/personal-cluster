@@ -1,0 +1,3 @@
+# Secrets locais — nunca commitar
+infra/personal-assistence/secrets.local.yaml
+infra/personal-assistence/secrets.yaml
