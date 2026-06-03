@@ -51,12 +51,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Update Kubernetes manifests
+        id: manifest
         run: |
-          SHORT_SHA="${GITHUB_SHA::7}"
-          sed -i "s|image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:.*|image: ${{ env.IMAGE_NAME }}:${SHORT_SHA}|g" infra/personal-assistence/web-app.yaml
+          IMAGE_TAG="sha-${GITHUB_SHA::7}"
+          sed -i "s|image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:.*|image: ${{ env.IMAGE_NAME }}:${IMAGE_TAG}|g" infra/personal-assistence/web-app.yaml
+          echo "tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(personal-assistence): update web-app image to ${GITHUB_SHA::7}"
+          commit_message: "chore(personal-assistence): update web-app image to ${{ steps.manifest.outputs.tag }}"
           file_pattern: infra/personal-assistence/web-app.yaml
