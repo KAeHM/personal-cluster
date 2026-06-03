@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import type { Provider } from "next-auth/providers";
 
 import { authConfig } from "@/auth.config";
-import { db } from "@/lib/db";
+import { db, getDb } from "@/lib/db";
 import {
   accounts,
   sessions,
@@ -68,12 +68,16 @@ function buildProviders(): Provider[] {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }),
+  ...(process.env.DATABASE_URL
+    ? {
+        adapter: DrizzleAdapter(getDb(), {
+          usersTable: users,
+          accountsTable: accounts,
+          sessionsTable: sessions,
+          verificationTokensTable: verificationTokens,
+        }),
+      }
+    : {}),
   providers: buildProviders(),
   callbacks: {
     async jwt({ token, user }) {
