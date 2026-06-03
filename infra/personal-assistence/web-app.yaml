@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app
+  namespace: personal-assistence
+spec:
+  selector:
+    app: web-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  namespace: personal-assistence
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - until pg_isready -h postgres.personal-assistence.svc.cluster.local -p 5432 -U admin; do sleep 2; done
+        - name: db-migrate
+          image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:latest
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - cd /migrate && npx drizzle-kit migrate
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DATABASE_URL
+      containers:
+        - name: web-app
+          image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DATABASE_URL
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AUTH_SECRET
+            - name: AUTH_URL
+              value: https://personal-assistence.tail412374.ts.net
+            - name: GOOGLE_GENERATIVE_AI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: GOOGLE_GENERATIVE_AI_API_KEY
+            - name: EVOLUTION_API_URL
+              value: http://evolution-api.personal-assistence.svc.cluster.local:8080
+            - name: EVOLUTION_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: EVOLUTION_API_KEY
+            - name: EVOLUTION_INSTANCE
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: EVOLUTION_INSTANCE
+            - name: WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: WEBHOOK_SECRET
+            - name: AUTH_GOOGLE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AUTH_GOOGLE_ID
+                  optional: true
+            - name: AUTH_GOOGLE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AUTH_GOOGLE_SECRET
+                  optional: true
+            - name: AUTH_RESEND_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AUTH_RESEND_KEY
+                  optional: true
+            - name: AUTH_EMAIL_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AUTH_EMAIL_FROM
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /auth
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /auth
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-app-ingress
+  namespace: personal-assistence
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - personal-assistence.tail412374.ts.net
+  rules:
+    - host: personal-assistence.tail412374.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-app
+                port:
+                  number: 80
