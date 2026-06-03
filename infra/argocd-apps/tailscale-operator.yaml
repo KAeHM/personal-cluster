@@ -14,6 +14,9 @@ spec:
         oauth:
           clientId: "kUM4ybamxY11CNTRL"
           clientSecret: "tskey-client-kUM4ybamxY11CNTRL-VXFwMELghnNsxyho3kBgnNv4p9D7VR5Fc"
+        operator:
+          image:
+            tag: v1.98.4
   destination:
     server: "https://kubernetes.default.svc"
     namespace: tailscale

@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-ingress
+  namespace: argocd
+  annotations:
+    # O ArgoCD roda em HTTPS internamente, precisamos avisar o Ingress
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - argocd.tail412374.ts.net # <-- O seu DNS para o Argo
+  rules:
+    - host: argocd.tail412374.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 443
