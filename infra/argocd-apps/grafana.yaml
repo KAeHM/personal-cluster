@@ -36,6 +36,10 @@ spec:
               type: loki
               url: http://loki-gateway.monitoring.svc.cluster.local:80
               access: proxy
+              jsonData:
+                httpHeaderName1: 'X-Scope-OrgID'
+              secureJsonData:
+                httpHeaderValue1: '1'
   destination:
     server: "https://kubernetes.default.svc"
     namespace: monitoring
