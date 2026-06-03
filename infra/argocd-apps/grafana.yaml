@@ -12,6 +12,9 @@ spec:
     helm:
       values: |
         adminPassword: "admin"
+        persistence:
+          enabled: true
+          size: 5Gi
         ingress:
           enabled: true
           ingressClassName: tailscale
@@ -20,19 +23,19 @@ spec:
           tls:
             - hosts:
                 - grafana.tail412374.ts.net
-          datasources:
-            datasources.yaml:
-              apiVersion: 1
-              datasources:
-              - name: Prometheus
-                type: prometheus
-                url: http://prometheus-server.monitoring.svc.cluster.local:80
-                access: proxy
-                isDefault: true
-              - name: Loki
-                type: loki
-                url: http://loki-gateway.monitoring.svc.cluster.local:80
-                access: proxy
+        datasources:
+          datasources.yaml:
+            apiVersion: 1
+            datasources:
+            - name: Prometheus
+              type: prometheus
+              url: http://prometheus-server.monitoring.svc.cluster.local:80
+              access: proxy
+              isDefault: true
+            - name: Loki
+              type: loki
+              url: http://loki-gateway.monitoring.svc.cluster.local:80
+              access: proxy
   destination:
     server: "https://kubernetes.default.svc"
     namespace: monitoring
