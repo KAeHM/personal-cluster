@@ -34,11 +34,7 @@ spec:
             - -c
             - until pg_isready -h postgres.personal-assistence.svc.cluster.local -p 5432 -U admin; do sleep 2; done
         - name: db-migrate
-<<<<<<< HEAD
           image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:sha-1d29455
-=======
-          image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:1d29455
->>>>>>> b819dc1dcad8abdd56e0cf1db17c449788d9418a
           securityContext:
             runAsUser: 0
           command:
