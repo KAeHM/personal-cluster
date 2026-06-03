@@ -52,7 +52,7 @@ spec:
             - containerPort: 8080
           env:
             - name: SERVER_URL
-              value: http://evolution-api.personal-assistence.svc.cluster.local:8080
+              value: https://evolution-personal-assistence.tail412374.ts.net
             - name: AUTHENTICATION_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -119,3 +119,25 @@ metadata:
   namespace: personal-assistence
 data:
   WHATSAPP_WEB_VERSION: "2.3000.1040323813"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: evolution-api-ingress
+  namespace: personal-assistence
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - evolution-personal-assistence.tail412374.ts.net
+  rules:
+    - host: evolution-personal-assistence.tail412374.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: evolution-api
+                port:
+                  number: 8080

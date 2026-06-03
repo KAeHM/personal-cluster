@@ -44,24 +44,31 @@ Push em `apps/personal-assistence/web/**` na branch `master` dispara
 
 ## 4. Evolution API (WhatsApp)
 
-Após os pods estarem healthy, configure a instância:
+Painel web (Tailscale): **https://evolution-personal-assistence.tail412374.ts.net/manager**
+
+Use a `EVOLUTION_API_KEY` do secret no header `apikey` ou na UI do manager.
+
+Após o ArgoCD sincronizar o Ingress, crie/configure a instância:
 
 ```bash
-# Na raiz do app
 cd apps/personal-assistence
 cp .env.example .env
-# Preencha EVOLUTION_API_KEY, EVOLUTION_INSTANCE, WEBHOOK_SECRET iguais ao secret
+# EVOLUTION_API_KEY, EVOLUTION_INSTANCE, WEBHOOK_SECRET — iguais ao sealed secret
 # WEBHOOK_URL=https://personal-assistence.tail412374.ts.net/api/webhooks/whatsapp
-# EVOLUTION_API_URL=http://localhost:8080  # via port-forward:
-
-kubectl port-forward -n personal-assistence svc/evolution-api 8080:8080
+# EVOLUTION_API_URL=https://evolution-personal-assistence.tail412374.ts.net
 
 ./scripts/setup-evolution.sh
 ```
 
-Escaneie o QR Code gerado para conectar o WhatsApp.
+Ou conecte pelo manager no browser e escaneie o QR Code.
 
-## 5. Auth em produção
+## 5. WhatsApp self-test (pré-produção)
+
+`WHATSAPP_SELF_TEST_MODE=true` está habilitado no Deployment. Permite testar com o mesmo
+número da instância (mensagens `fromMe`). Desative removendo a env var ou setando `false`
+antes de abrir para usuários reais.
+
+## 6. Auth em produção
 
 Configure no secret (opcional):
 

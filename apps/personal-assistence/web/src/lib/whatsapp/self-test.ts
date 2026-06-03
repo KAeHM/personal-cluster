@@ -1,10 +1,6 @@
 export const WHATSAPP_ASSISTANT_PREFIX = "[Assistente]\n";
 
 export function isWhatsAppSelfTestMode(): boolean {
-  if (process.env.NODE_ENV === "production") {
-    return false;
-  }
-
   return process.env.WHATSAPP_SELF_TEST_MODE === "true";
 }
 

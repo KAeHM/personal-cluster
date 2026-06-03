@@ -48,7 +48,7 @@ Referência completa de variáveis para o projeto.
 | `EVOLUTION_API_KEY` | Sim | API key da Evolution | `dev-secret-key-change-me` |
 | `EVOLUTION_INSTANCE` | Sim | Nome da instância WhatsApp | `timetracker-dev` |
 | `WEBHOOK_SECRET` | Sim | Token para validar webhooks inbound | Gerar: `openssl rand -hex 16` |
-| `WHATSAPP_SELF_TEST_MODE` | Não | Dev only — processa só mensagens `fromMe` (self-chat no mesmo número da instância). Respostas saem com prefixo `[Assistente]` para evitar loop. Ignorada em produção. | `true` |
+| `WHATSAPP_SELF_TEST_MODE` | Não | Processa só mensagens `fromMe` (self-chat no mesmo número da instância). Respostas saem com prefixo `[Assistente]` para evitar loop. | `true` |
 | `AI_DEBUG` | Não | Logs detalhados do fluxo IA (`[ai:...]` no console). Ativo por padrão em `NODE_ENV=development`. | `true` |
 
 ---
