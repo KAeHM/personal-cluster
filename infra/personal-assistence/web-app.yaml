@@ -95,11 +95,6 @@ spec:
                   key: WEBHOOK_SECRET
             - name: WHATSAPP_SELF_TEST_MODE
               value: "true"
-            - name: WHATSAPP_SELF_PHONE
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: WHATSAPP_SELF_PHONE
             - name: AUTH_GOOGLE_ID
               valueFrom:
                 secretKeyRef:
