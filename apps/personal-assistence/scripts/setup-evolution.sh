@@ -11,7 +11,12 @@ if [ -f .env ]; then
   set +a
 fi
 
-if [ -f web/.env ]; then
+if [ -f web/.env.local ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source web/.env.local
+  set +a
+elif [ -f web/.env ]; then
   set -a
   # shellcheck disable=SC1091
   source web/.env
@@ -23,6 +28,28 @@ INSTANCE="${EVOLUTION_INSTANCE:-timetracker-dev}"
 BASE_URL="${EVOLUTION_API_URL:-http://localhost:8080}"
 WEBHOOK_URL="${WEBHOOK_URL:-${WEBHOOK_GLOBAL_URL:-http://host.docker.internal:3000/api/webhooks/whatsapp}}"
 QR_OUTPUT="${ROOT_DIR}/qrcode.png"
+
+curl_evolution() {
+  local response http_code
+  response="$(mktemp)"
+  http_code="$(
+    curl -sS -w "%{http_code}" -o "$response" "$@" || echo "000"
+  )"
+
+  if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+    cat "$response"
+    rm -f "$response"
+    return 0
+  fi
+
+  echo "✗ Evolution API falhou (HTTP ${http_code}) em: $*" >&2
+  if [ -s "$response" ]; then
+    cat "$response" >&2
+    echo "" >&2
+  fi
+  rm -f "$response"
+  return 1
+}
 
 build_webhook_payload() {
   if [ -n "${WEBHOOK_SECRET:-}" ]; then
@@ -97,30 +124,37 @@ print(f"✓ QR salvo em {output}")
 PY
 }
 
+echo "→ Configuração:"
+echo "  BASE_URL=${BASE_URL}"
+echo "  INSTANCE=${INSTANCE}"
+echo "  WEBHOOK_URL=${WEBHOOK_URL}"
+echo ""
+
 echo "→ Criando instância ${INSTANCE}..."
-curl -sf -X POST "${BASE_URL}/instance/create" \
+if ! curl_evolution -X POST "${BASE_URL}/instance/create" \
   -H "apikey: ${API_KEY}" \
   -H "Content-Type: application/json" \
-  -d "{\"instanceName\":\"${INSTANCE}\",\"integration\":\"WHATSAPP-BAILEYS\",\"qrcode\":true}" \
-  || echo "Instância pode já existir — continuando."
+  -d "{\"instanceName\":\"${INSTANCE}\",\"integration\":\"WHATSAPP-BAILEYS\",\"qrcode\":true}"; then
+  echo "Instância pode já existir — continuando."
+fi
 
 echo ""
 echo "→ Configurando webhook por instância (com headers de auth)..."
-curl -sf -X POST "${BASE_URL}/webhook/set/${INSTANCE}" \
+curl_evolution -X POST "${BASE_URL}/webhook/set/${INSTANCE}" \
   -H "apikey: ${API_KEY}" \
   -H "Content-Type: application/json" \
   -d "$(build_webhook_payload)"
 
 echo ""
 echo "→ Gerando QR Code..."
-QR_RESPONSE="$(curl -sf "${BASE_URL}/instance/connect/${INSTANCE}" \
+QR_RESPONSE="$(curl_evolution "${BASE_URL}/instance/connect/${INSTANCE}" \
   -H "apikey: ${API_KEY}")"
 echo "${QR_RESPONSE}"
 save_qrcode_from_response "${QR_RESPONSE}"
 
 echo ""
 echo "→ Estado da conexão:"
-curl -sf "${BASE_URL}/instance/connectionState/${INSTANCE}" \
+curl_evolution "${BASE_URL}/instance/connectionState/${INSTANCE}" \
   -H "apikey: ${API_KEY}"
 
 echo ""

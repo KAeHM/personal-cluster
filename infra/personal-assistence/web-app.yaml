@@ -53,6 +53,8 @@ spec:
           ports:
             - containerPort: 3000
           env:
+            - name: AI_DEBUG
+              value: "true"
             - name: NODE_ENV
               value: production
             - name: DATABASE_URL

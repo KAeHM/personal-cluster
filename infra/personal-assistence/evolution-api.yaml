@@ -118,7 +118,7 @@ metadata:
   name: evolution-config
   namespace: personal-assistence
 data:
-  WHATSAPP_WEB_VERSION: "2.3000.1040323813"
+  WHATSAPP_WEB_VERSION: "2.3000.1040753655.261600"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
