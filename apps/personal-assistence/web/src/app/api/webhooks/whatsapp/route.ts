@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       await sendWhatsAppErrorReply(
         message.phone,
         WHATSAPP_ERRORS.generic,
-        message.remoteJid,
+        message.replyRemoteJid,
       );
       results.push({
         messageId: message.messageId,

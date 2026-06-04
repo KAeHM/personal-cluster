@@ -55,6 +55,8 @@ spec:
           env:
             - name: AI_DEBUG
               value: "true"
+            - name: WHATSAPP_SELF_PHONE
+              value: "5511973650867"
             - name: NODE_ENV
               value: production
             - name: DATABASE_URL
@@ -93,6 +95,11 @@ spec:
                   key: WEBHOOK_SECRET
             - name: WHATSAPP_SELF_TEST_MODE
               value: "true"
+            - name: WHATSAPP_SELF_PHONE
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: WHATSAPP_SELF_PHONE
             - name: AUTH_GOOGLE_ID
               valueFrom:
                 secretKeyRef:

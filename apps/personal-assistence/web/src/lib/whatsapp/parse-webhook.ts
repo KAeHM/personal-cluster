@@ -12,6 +12,8 @@ export type IncomingMessage = {
   messageId: string;
   phone: string;
   remoteJid: string;
+  /** JID/número usado em sendText — resolve @lid → @s.whatsapp.net quando possível */
+  replyRemoteJid: string;
   text: string;
   pushName?: string;
   timestamp: Date;
@@ -27,13 +29,19 @@ type EvolutionWebhookPayload = {
   data?: unknown;
 };
 
+type EvolutionMessageKey = {
+  id?: string;
+  remoteJid?: string;
+  remoteJidAlt?: string;
+  fromMe?: boolean;
+  participant?: string;
+};
+
 type EvolutionMessageData = {
-  key?: {
-    id?: string;
-    remoteJid?: string;
-    fromMe?: boolean;
-  };
+  key?: EvolutionMessageKey;
   pushName?: string;
+  sender?: string;
+  senderPn?: string;
   message?: Record<string, unknown>;
   messageType?: string;
   messageTimestamp?: number | string;
@@ -55,6 +63,22 @@ export function normalizePhone(remoteJid: string): string {
 
 const MAX_PHONE_DIGITS = 13;
 
+function normalizeJidCandidate(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.includes("@")) {
+    return trimmed;
+  }
+
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length >= 10 && digits.length <= MAX_PHONE_DIGITS) {
+    return `${digits}@s.whatsapp.net`;
+  }
+
+  return null;
+}
+
 export function resolveEvolutionRecipient(
   remoteJid: string,
   phone: string,
@@ -68,6 +92,65 @@ export function resolveEvolutionRecipient(
   }
 
   return phone;
+}
+
+export function resolveReplyRemoteJid(
+  remoteJid: string,
+  phone: string,
+  sources: {
+    remoteJidAlt?: string;
+    sender?: string;
+    senderPn?: string;
+    participant?: string;
+  } = {},
+): string {
+  if (!remoteJid.includes("@lid")) {
+    return resolveEvolutionRecipient(remoteJid, phone);
+  }
+
+  const candidates = [
+    sources.remoteJidAlt,
+    sources.sender,
+    sources.senderPn,
+    sources.participant,
+  ]
+    .filter((value): value is string => typeof value === "string" && value.length > 0)
+    .map(normalizeJidCandidate)
+    .filter((value): value is string => value !== null);
+
+  const whatsappJid = candidates.find((candidate) =>
+    candidate.endsWith("@s.whatsapp.net"),
+  );
+
+  if (whatsappJid) {
+    aiDebug("webhook:resolve-reply-jid", {
+      remoteJid,
+      replyRemoteJid: whatsappJid,
+    });
+    return whatsappJid;
+  }
+
+  aiDebug("webhook:resolve-reply-jid:fallback", {
+    remoteJid,
+    replyRemoteJid: remoteJid,
+    candidates: [
+      sources.remoteJidAlt,
+      sources.sender,
+      sources.senderPn,
+      sources.participant,
+    ],
+  });
+
+  return remoteJid;
+}
+
+/** Formato aceito pelo sendText da Evolution API (`number`). */
+export function formatEvolutionSendNumber(target: string): string {
+  if (target.includes("@s.whatsapp.net")) {
+    return normalizePhone(target);
+  }
+
+  return target;
 }
 
 function extractText(message?: Record<string, unknown>): string | null {
@@ -153,6 +236,7 @@ function parseMessageData(data: EvolutionMessageData): IncomingMessage | null {
   const messageType = data.messageType ?? "unknown";
   const text = extractText(data.message) ?? "";
   const audio = extractAudio(data);
+  const phone = normalizePhone(remoteJid);
 
   const isText = SUPPORTED_TEXT_TYPES.has(messageType) && text.length > 0;
   const isAudio = SUPPORTED_AUDIO_TYPES.has(messageType) && !!audio;
@@ -167,10 +251,18 @@ function parseMessageData(data: EvolutionMessageData): IncomingMessage | null {
         ? new Date(Number(timestampValue) * 1000)
         : new Date();
 
+  const replyRemoteJid = resolveReplyRemoteJid(remoteJid, phone, {
+    remoteJidAlt: data.key?.remoteJidAlt,
+    sender: data.sender,
+    senderPn: data.senderPn,
+    participant: data.key?.participant,
+  });
+
   return {
     messageId,
-    phone: normalizePhone(remoteJid),
+    phone,
     remoteJid,
+    replyRemoteJid,
     text,
     pushName: data.pushName,
     timestamp,

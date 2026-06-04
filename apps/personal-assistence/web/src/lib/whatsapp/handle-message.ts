@@ -30,7 +30,6 @@ import {
 } from "@/lib/whatsapp/message-logs";
 import {
   type IncomingMessage,
-  resolveEvolutionRecipient,
 } from "@/lib/whatsapp/parse-webhook";
 
 const KNOWN_WHATSAPP_MESSAGES = new Set<string>(Object.values(WHATSAPP_ERRORS));
@@ -113,7 +112,7 @@ async function replyToUser(
   userId: string,
   text: string,
 ): Promise<string> {
-  const recipient = resolveEvolutionRecipient(message.remoteJid, message.phone);
+  const recipient = message.replyRemoteJid;
   await sendWhatsAppText({ phone: recipient, text });
   return logOutboundMessage({ userId, content: text, phone: message.phone });
 }
@@ -283,12 +282,10 @@ export async function handleIncomingWhatsAppMessage(
 export async function sendWhatsAppErrorReply(
   phone: string,
   text: string = WHATSAPP_ERRORS.generic,
-  remoteJid?: string,
+  replyRemoteJid?: string,
 ) {
   try {
-    const recipient = remoteJid
-      ? resolveEvolutionRecipient(remoteJid, phone)
-      : phone;
+    const recipient = replyRemoteJid ?? phone;
     await sendWhatsAppText({ phone: recipient, text });
   } catch (error) {
     console.error("[whatsapp] failed to send error reply:", error);

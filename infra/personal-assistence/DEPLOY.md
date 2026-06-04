@@ -54,7 +54,7 @@ Após o ArgoCD sincronizar o Ingress, crie/configure a instância:
 cd apps/personal-assistence
 cp .env.example .env
 # EVOLUTION_API_KEY, EVOLUTION_INSTANCE, WEBHOOK_SECRET — iguais ao sealed secret
-# WEBHOOK_URL=https://personal-assistence.tail412374.ts.net/api/webhooks/whatsapp
+# WEBHOOK_URL=http://web-app.personal-assistence.svc.cluster.local/api/webhooks/whatsapp
 # EVOLUTION_API_URL=https://evolution-personal-assistence.tail412374.ts.net
 
 ./scripts/setup-evolution.sh
@@ -62,11 +62,21 @@ cp .env.example .env
 
 Ou conecte pelo manager no browser e escaneie o QR Code.
 
+**Webhook no cluster:** use sempre a URL **interna** (`http://web-app.personal-assistence.svc.cluster.local/...`).
+A URL Tailscale só funciona de fora do cluster; a Evolution roda dentro e não resolve o hostname.
+
+**Evolution API:** imagem `evoapicloud/evolution-api:2.4.0-rc2` com suporte melhor a JIDs `@lid`.
+Após upgrade, pode ser necessário reconectar a instância (QR) no manager.
+
 ## 5. WhatsApp self-test (pré-produção)
 
-`WHATSAPP_SELF_TEST_MODE=true` está habilitado no Deployment. Permite testar com o mesmo
-número da instância (mensagens `fromMe`). Desative removendo a env var ou setando `false`
-antes de abrir para usuários reais.
+`WHATSAPP_SELF_TEST_MODE=true` está habilitado no Deployment. Permite testar com self-chat no mesmo
+número da instância (mensagem **para você mesmo**, não para contatos).
+
+Configure `WHATSAPP_SELF_PHONE` no sealed secret (DDI + DDD + número, só dígitos) e regenere
+`sealed-secret.yaml` se ainda não existir essa chave.
+
+Desative removendo a env var ou setando `WHATSAPP_SELF_TEST_MODE=false` antes de abrir para usuários reais.
 
 ## 6. Auth em produção
 

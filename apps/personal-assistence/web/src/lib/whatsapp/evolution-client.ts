@@ -1,6 +1,7 @@
 import { formatAssistantOutboundMessage } from "@/lib/whatsapp/self-test";
 import { aiDebug } from "@/lib/ai/debug-log";
 import { normalizeBase64Payload } from "@/lib/ai/validate-audio";
+import { formatEvolutionSendNumber } from "@/lib/whatsapp/parse-webhook";
 
 type SendTextInput = {
   phone: string;
@@ -125,7 +126,7 @@ export async function sendWhatsAppText({
         apikey: apiKey,
       },
       body: JSON.stringify({
-        number: phone,
+        number: formatEvolutionSendNumber(phone),
         text: formatAssistantOutboundMessage(text),
       }),
     },
