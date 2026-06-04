@@ -34,7 +34,7 @@ spec:
             - -c
             - until pg_isready -h postgres.personal-assistence.svc.cluster.local -p 5432 -U admin; do sleep 2; done
         - name: db-migrate
-          image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:sha-2669422
+          image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:sha-e5ccd23
           securityContext:
             runAsUser: 0
           command:
@@ -49,7 +49,7 @@ spec:
                   key: DATABASE_URL
       containers:
         - name: web-app
-          image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:sha-2669422
+          image: ghcr.io/kaehm/personal-cluster/personal-assistence-web:sha-e5ccd23
           ports:
             - containerPort: 3000
           env:
