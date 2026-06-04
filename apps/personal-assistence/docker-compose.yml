@@ -18,7 +18,7 @@ services:
       retries: 10
 
   evolution-api:
-    image: evoapicloud/evolution-api:2.4.0-rc2
+    image: atendai/evolution-api:v2.2.3
     container_name: evolution-api
     restart: unless-stopped
     ports:
@@ -38,7 +38,6 @@ services:
       CONFIG_SESSION_PHONE_VERSION: ${WHATSAPP_WEB_VERSION:-2.3000.1040323813}
       QRCODE_LIMIT: "30"
       LOG_LEVEL: ERROR
-      WPP_LID_MODE: "false"
     depends_on:
       postgres:
         condition: service_healthy

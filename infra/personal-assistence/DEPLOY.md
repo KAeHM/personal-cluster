@@ -65,8 +65,9 @@ Ou conecte pelo manager no browser e escaneie o QR Code.
 **Webhook no cluster:** use sempre a URL **interna** (`http://web-app.personal-assistence.svc.cluster.local/...`).
 A URL Tailscale só funciona de fora do cluster; a Evolution roda dentro e não resolve o hostname.
 
-**Evolution API:** imagem `evoapicloud/evolution-api:2.4.0-rc2` com suporte melhor a JIDs `@lid`.
-Após upgrade, pode ser necessário reconectar a instância (QR) no manager.
+**Evolution API:** imagem `atendai/evolution-api:v2.2.3` (open source, sem licença).
+JIDs `@lid` na resposta são tratados na web-app (`remoteJidAlt` → número real).
+Não use `evoapicloud/evolution-api` — exige ativação comercial (`LICENSE_REQUIRED`).
 
 ## 5. WhatsApp self-test (pré-produção)
 

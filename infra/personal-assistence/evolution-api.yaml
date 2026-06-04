@@ -47,7 +47,7 @@ spec:
             - until pg_isready -h postgres.personal-assistence.svc.cluster.local -p 5432 -U admin; do sleep 2; done
       containers:
         - name: evolution-api
-          image: evoapicloud/evolution-api:2.4.0-rc2
+          image: atendai/evolution-api:v2.2.3
           ports:
             - containerPort: 8080
           env:
@@ -86,8 +86,6 @@ spec:
               value: "30"
             - name: LOG_LEVEL
               value: ERROR
-            - name: WPP_LID_MODE
-              value: "false"
           volumeMounts:
             - name: evolution-instances
               mountPath: /evolution/instances
