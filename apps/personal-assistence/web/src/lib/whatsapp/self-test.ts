@@ -4,16 +4,25 @@ export function isWhatsAppSelfTestMode(): boolean {
   return process.env.WHATSAPP_SELF_TEST_MODE === "true";
 }
 
-function normalizePhoneDigits(value: string): string {
+export function normalizePhoneDigits(value: string): string {
   const withoutSuffix = value.split("@")[0] ?? value;
   return withoutSuffix.replace(/\D/g, "");
 }
 
-function getSelfPhoneDigits(): string | null {
+export function getSelfPhoneDigits(): string | null {
   const selfPhone = process.env.WHATSAPP_SELF_PHONE?.trim();
   if (!selfPhone) return null;
 
   const digits = selfPhone.replace(/\D/g, "");
+  return digits.length > 0 ? digits : null;
+}
+
+/** LID do self-chat (@lid antes do @). Ver log `[ai:webhook:resolve-reply-jid:fallback]`. */
+export function getSelfLidDigits(): string | null {
+  const selfLid = process.env.WHATSAPP_SELF_LID?.trim();
+  if (!selfLid) return null;
+
+  const digits = selfLid.replace(/\D/g, "");
   return digits.length > 0 ? digits : null;
 }
 
@@ -33,6 +42,9 @@ export function isSelfChatMessage(message: {
   if (message.remoteJid.includes("@lid")) {
     const replyDigits = normalizePhoneDigits(message.replyRemoteJid);
     if (replyDigits === selfPhone) return true;
+
+    const selfLid = getSelfLidDigits();
+    if (selfLid && remoteDigits === selfLid) return true;
   }
 
   return false;

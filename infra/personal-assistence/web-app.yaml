@@ -57,6 +57,8 @@ spec:
               value: "true"
             - name: WHATSAPP_SELF_PHONE
               value: "5511973650867"
+            - name: WHATSAPP_SELF_LID
+              value: "130644583665743"
             - name: NODE_ENV
               value: production
             - name: DATABASE_URL

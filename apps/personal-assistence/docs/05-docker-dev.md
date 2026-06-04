@@ -155,7 +155,7 @@ WHATSAPP_SELF_TEST_MODE=true
 Comportamento:
 
 - Só processa **self-chat**: mensagens `fromMe` enviadas **para você mesmo** (não para contatos)
-- Requer `WHATSAPP_SELF_PHONE` com seu número (DDI + DDD, só dígitos)
+- Requer `WHATSAPP_SELF_PHONE` e `WHATSAPP_SELF_LID` (LID do self-chat — aparece no log `[ai:webhook:resolve-reply-jid:fallback]`)
 - Ignora mensagens de terceiros e respostas da assistente (prefixo `[Assistente]`)
 - Respostas outbound recebem automaticamente o prefixo `[Assistente]\n` para evitar loop
 
@@ -164,6 +164,7 @@ Exemplo em `web/.env.local`:
 ```env
 WHATSAPP_SELF_TEST_MODE=true
 WHATSAPP_SELF_PHONE=5511999999999
+WHATSAPP_SELF_LID=130644583665743
 ```
 
 > Ignorada em produção (`NODE_ENV=production`). Para testes automatizados sem WhatsApp, use `npm run webhook:simulate` ou `npm run agent:test`.

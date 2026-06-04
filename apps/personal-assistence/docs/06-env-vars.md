@@ -49,7 +49,8 @@ Referência completa de variáveis para o projeto.
 | `EVOLUTION_INSTANCE` | Sim | Nome da instância WhatsApp | `timetracker-dev` |
 | `WEBHOOK_SECRET` | Sim | Token para validar webhooks inbound | Gerar: `openssl rand -hex 16` |
 | `WHATSAPP_SELF_TEST_MODE` | Não | Self-test: processa só self-chat (`fromMe` + `WHATSAPP_SELF_PHONE`). Respostas com prefixo `[Assistente]`. | `true` |
-| `WHATSAPP_SELF_PHONE` | Sim (com self-test) | Seu número WhatsApp (DDI + DDD + número, só dígitos) para identificar self-chat | `5511999999999` |
+| `WHATSAPP_SELF_PHONE` | Sim (com self-test) | Seu número WhatsApp (DDI + DDD + número, só dígitos) | `5511999999999` |
+| `WHATSAPP_SELF_LID` | Sim (self-chat via `@lid`) | ID numérico antes do `@lid` no self-chat (veja log `resolve-reply-jid:fallback`) | `130644583665743` |
 | `AI_DEBUG` | Não | Logs detalhados do fluxo IA (`[ai:...]` no console). Ativo por padrão em `NODE_ENV=development`. | `true` |
 
 ---

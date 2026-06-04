@@ -1,4 +1,8 @@
-import { shouldProcessIncomingMessage } from "@/lib/whatsapp/self-test";
+import {
+  getSelfLidDigits,
+  getSelfPhoneDigits,
+  shouldProcessIncomingMessage,
+} from "@/lib/whatsapp/self-test";
 import { aiDebug } from "@/lib/ai/debug-log";
 import { normalizeBase64Payload } from "@/lib/ai/validate-audio";
 
@@ -42,6 +46,8 @@ type EvolutionMessageData = {
   pushName?: string;
   sender?: string;
   senderPn?: string;
+  remoteJidAlt?: string;
+  participant?: string;
   message?: Record<string, unknown>;
   messageType?: string;
   messageTimestamp?: number | string;
@@ -132,7 +138,6 @@ export function resolveReplyRemoteJid(
 
   aiDebug("webhook:resolve-reply-jid:fallback", {
     remoteJid,
-    replyRemoteJid: remoteJid,
     candidates: [
       sources.remoteJidAlt,
       sources.sender,
@@ -140,6 +145,20 @@ export function resolveReplyRemoteJid(
       sources.participant,
     ],
   });
+
+  const selfPhone = getSelfPhoneDigits();
+  const selfLid = getSelfLidDigits();
+  const remoteLidDigits = normalizePhone(remoteJid);
+
+  if (selfPhone && (!selfLid || remoteLidDigits === selfLid)) {
+    const replyRemoteJid = `${selfPhone}@s.whatsapp.net`;
+    aiDebug("webhook:resolve-reply-jid:self-phone", {
+      remoteJid,
+      replyRemoteJid,
+      selfLid: selfLid ?? null,
+    });
+    return replyRemoteJid;
+  }
 
   return remoteJid;
 }
@@ -252,10 +271,10 @@ function parseMessageData(data: EvolutionMessageData): IncomingMessage | null {
         : new Date();
 
   const replyRemoteJid = resolveReplyRemoteJid(remoteJid, phone, {
-    remoteJidAlt: data.key?.remoteJidAlt,
+    remoteJidAlt: data.key?.remoteJidAlt ?? data.remoteJidAlt,
     sender: data.sender,
     senderPn: data.senderPn,
-    participant: data.key?.participant,
+    participant: data.key?.participant ?? data.participant,
   });
 
   return {
