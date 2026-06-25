@@ -6,7 +6,9 @@ import { Loader2 } from "lucide-react";
 
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { ExportReportButton } from "@/components/dashboard/ExportReportButton";
+import { ManualTimeEntryDialog } from "@/components/dashboard/ManualTimeEntryDialog";
 import { MetricsCards } from "@/components/dashboard/MetricsCards";
+import { StartTaskDialog } from "@/components/dashboard/StartTaskDialog";
 import { TaskTable } from "@/components/dashboard/TaskTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateRangeLabel } from "@/lib/dashboard/date-range";
@@ -198,14 +200,21 @@ export function DashboardContent({
       />
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
             Tarefas
           </h2>
-          <span className="text-xs text-muted-foreground">
-            {data.tasks.total}{" "}
-            {data.tasks.total === 1 ? "registro" : "registros"}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <StartTaskDialog onTaskChanged={() => void refresh(filters, true)} />
+            <ManualTimeEntryDialog
+              timezone={timezone}
+              onTaskChanged={() => void refresh(filters, true)}
+            />
+            <span className="text-xs text-muted-foreground">
+              {data.tasks.total}{" "}
+              {data.tasks.total === 1 ? "registro" : "registros"}
+            </span>
+          </div>
         </div>
 
         {isRefreshing && data.tasks.items.length === 0 ? (

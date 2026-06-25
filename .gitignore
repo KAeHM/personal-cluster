@@ -1,3 +1,5 @@
 # Secrets locais — nunca commitar
 infra/personal-assistence/secrets.local.yaml
 infra/personal-assistence/secrets.yaml
+infra/*/secrets.local.yaml
+infra/*/secrets.yaml

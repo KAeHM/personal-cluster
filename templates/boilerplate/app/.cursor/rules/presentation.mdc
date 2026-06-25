@@ -1,0 +1,30 @@
+---
+description: Server Actions, Client Components e App Router
+globs: "{src/**/presentation/**,src/app/**/*.tsx,src/app/**/*.ts}"
+alwaysApply: false
+---
+
+# Presentation
+
+## Server Actions (`"use server"`)
+
+- Live in `modules/<m>/presentation/actions/*.actions.ts`.
+- Action state types in separate `types.ts` (no `"use server"`) for Client Components.
+- Auth: `requireAuth` / `requireRole` from auth application guards.
+- Validate with Zod; call use cases; `revalidatePath` when mutating UI data.
+
+## Client Components (`"use client"`)
+
+```tsx
+// ❌ pulls server-only code into client bundle
+import { createUserAction, type UserActionState } from "@/modules/users";
+
+// ✅
+import { createUserAction } from "@/modules/users/presentation/actions/user.actions";
+import type { UserActionState } from "@/modules/users/presentation/actions/types";
+```
+
+## UI
+
+Reuse `src/common/components/ui/*` and layouts in `common/components/layouts/`.
+Env: `getEnv()` is server-only — never import in client.

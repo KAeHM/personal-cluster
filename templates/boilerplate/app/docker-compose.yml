@@ -1,0 +1,65 @@
+# Stack local completa: Postgres + migrations + app.
+# Suba com: AUTH_SECRET=$(npx auth secret | tr -d '\n') docker compose up -d
+# (ou defina AUTH_SECRET no seu ambiente / .env do compose).
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "app"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Aplica as migrations e encerra. Usa o stage `builder` (tem drizzle-kit + devDeps).
+  migrate:
+    build:
+      context: .
+      target: builder
+    command: npm run db:migrate
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/app
+      AUTH_SECRET: ${AUTH_SECRET:?defina AUTH_SECRET (npx auth secret)}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:

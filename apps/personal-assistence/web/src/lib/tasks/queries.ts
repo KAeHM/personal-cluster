@@ -527,4 +527,53 @@ export async function clearPendingFinishSelection(userId: string): Promise<void>
     .where(eq(pendingFinishSelections.userId, userId));
 }
 
+export type CreateManualTimeEntryInput = {
+  userId: string;
+  description: string;
+  startedAt: Date;
+  durationMinutes: number;
+  groupId?: string;
+};
+
+export async function createManualTimeEntry(
+  input: CreateManualTimeEntryInput,
+): Promise<Task> {
+  const { userId, description, startedAt, durationMinutes, groupId } = input;
+  const endedAt = new Date(startedAt.getTime() + durationMinutes * 60_000);
+
+  const [task] = await db
+    .insert(tasks)
+    .values({
+      userId,
+      description,
+      status: "closed",
+      trackedMinutes: durationMinutes,
+      activatedAt: null,
+      startedAt,
+      endedAt,
+      durationMinutes,
+      groupId,
+    })
+    .returning();
+
+  await recordTaskEvent({
+    taskId: task.id,
+    userId,
+    type: "started",
+    occurredAt: startedAt,
+    trackedMinutesAfter: 0,
+  });
+
+  await recordTaskEvent({
+    taskId: task.id,
+    userId,
+    type: "finished",
+    occurredAt: endedAt,
+    segmentMinutes: durationMinutes,
+    trackedMinutesAfter: durationMinutes,
+  });
+
+  return task;
+}
+
 export { getLiveTrackedMinutes };

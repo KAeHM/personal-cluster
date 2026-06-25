@@ -1,0 +1,26 @@
+---
+description: Auth — sessão, credentials, guards, NextAuth
+globs: src/modules/auth/**/*
+alwaysApply: false
+---
+
+# Auth module
+
+## Concerns
+
+- **session** — `AuthProviderPort`, NextAuth JWT, `getSession` / `signOut` via facade.
+- **credentials** — `CredentialsRepository` (email + passwordHash), separate from user profile.
+- **security** — `PasswordHasher` (argon2).
+
+## Rules
+
+- App code uses `@/modules/auth` facade/guards — not `next-auth` outside `infrastructure/session/providers/nextauth/`.
+- `verifyCredentials` is the provider-agnostic login use case; NextAuth `authorize` calls it.
+- Guards (`requireAuth`, `requireRole`) throw `AUTH_ERRORS` — no redirects in application layer.
+- Session enrichment (e.g. `role`) happens in NextAuth callbacks, not in use cases.
+
+## Client imports
+
+Import `signInAction` from `presentation/actions/auth.actions.ts` and `SignInState` from `types.ts` — not the module barrel in Client Components.
+
+Read: `src/modules/auth/README.md`.

@@ -1,0 +1,53 @@
+# [Nome do Produto]
+
+> Copie este arquivo para `PROJECT.md` ao derivar um projeto do boilerplate.
+> Instruções completas: [`docs/derive-project.md`](docs/derive-project.md).
+
+Este repositório **não é o boilerplate** — é a aplicação **[Nome do Produto]**, criada a
+partir de [KAeHM/boilerplate](https://github.com/KAeHM/boilerplate) em [DATA].
+
+## O que é
+
+<!-- Uma ou duas frases: problema que resolve, para quem. -->
+
+[Descreva o produto aqui.]
+
+## Usuários
+
+<!-- Quem usa o sistema? Admin, cliente final, API externa? -->
+
+- ...
+
+## Fora de escopo (por enquanto)
+
+<!-- Evita que a IA implemente features não pedidas. -->
+
+- ...
+
+## Stack (herdada do boilerplate)
+
+Next.js 16, Drizzle, Postgres, NextAuth (Credentials), DDD-lite + Ports & Adapters.
+Convenções de código: [`AGENTS.md`](AGENTS.md), [`.cursor/rules/`](.cursor/rules/).
+
+## Módulos
+
+| Módulo | Status | Notas |
+| ------ | ------ | ----- |
+| `users` | Referência do template | CRUD + API v1; adaptar ou manter |
+| `auth` | Do template | Credentials + JWT |
+| `[novo]` | Planejado | ... |
+
+## Decisões deste projeto
+
+<!-- Escolhas específicas do produto (não do boilerplate genérico). -->
+
+- **Deploy staging:** imagem `ghcr.io/<owner>/<repo>:snapshot`
+- **Deploy produção:** semver pinado no Argo (`deploy/kubernetes/production/`)
+- **Auth:** ...
+- **Integrações:** ...
+
+## Links
+
+- Repositório: `https://github.com/<owner>/<repo>`
+- Documentação técnica: [`README.md`](README.md)
+- Setup GitHub: [`docs/github-setup.md`](docs/github-setup.md)

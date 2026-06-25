@@ -72,7 +72,7 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
   };
 
   const handleReset = () => {
-    const defaults: DashboardFilters = { period: "today" };
+    const defaults: DashboardFilters = { period: "month" };
     setDraft(defaults);
     applyFilters(defaults);
   };
@@ -172,7 +172,7 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
           onClick={handleReset}
           disabled={
             activeCount === 0 &&
-            applied.period === "today" &&
+            applied.period === "month" &&
             !applied.search
           }
         >

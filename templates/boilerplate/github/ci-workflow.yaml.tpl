@@ -1,0 +1,117 @@
+name: CI — {{APP_NAME}}
+
+on:
+  pull_request:
+    paths:
+      - "apps/{{APP_SLUG}}/**"
+      - ".github/workflows/{{APP_SLUG}}-ci.yaml"
+
+concurrency:
+  group: ci-{{APP_SLUG}}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, types, testes e build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/{{APP_SLUG}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/{{APP_SLUG}}/package-lock.json
+      - run: npm ci
+      - run: make check
+        env:
+          DATABASE_URL: postgres://user:pass@localhost:5432/app
+          AUTH_SECRET: ci-dummy-secret-0123456789
+
+  migrate:
+    name: Migrations aplicam em banco limpo
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/{{APP_SLUG}}
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/{{APP_SLUG}}/package-lock.json
+      - run: npm ci
+      - run: make db-migrate
+        env:
+          DATABASE_URL: postgres://app:app@localhost:5432/app
+
+  integration:
+    name: Testes de integracao (Testcontainers)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/{{APP_SLUG}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/{{APP_SLUG}}/package-lock.json
+      - run: npm ci
+      - run: make test-integration
+
+  e2e:
+    name: Testes E2E (Playwright)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/{{APP_SLUG}}
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://app:app@localhost:5432/app
+      AUTH_SECRET: ci-dummy-secret-0123456789
+      AUTH_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/{{APP_SLUG}}/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm run db:migrate
+      - run: npm run db:seed
+      - run: npm run test:e2e:install
+      - run: npm run test:e2e

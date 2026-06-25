@@ -29,11 +29,13 @@ spec:
             datasources:
             - name: Prometheus
               type: prometheus
+              uid: prometheus
               url: http://prometheus-server.monitoring.svc.cluster.local:80
               access: proxy
               isDefault: true
             - name: Loki
               type: loki
+              uid: loki
               url: http://loki.monitoring.svc.cluster.local:3100
               access: proxy
               jsonData:
@@ -41,6 +43,22 @@ spec:
                 timeout: 60
               secureJsonData:
                 httpHeaderValue1: '1'
+            - name: Tempo
+              type: tempo
+              uid: tempo
+              url: http://tempo.monitoring.svc.cluster.local:3200
+              access: proxy
+              jsonData:
+                tracesToLogsV2:
+                  datasourceUid: loki
+                  spanStartTimeShift: -1h
+                  spanEndTimeShift: 1h
+                  filterByTraceID: true
+                  filterBySpanID: false
+                lokiSearch:
+                  datasourceUid: loki
+                serviceMap:
+                  datasourceUid: prometheus
   destination:
     server: "https://kubernetes.default.svc"
     namespace: monitoring

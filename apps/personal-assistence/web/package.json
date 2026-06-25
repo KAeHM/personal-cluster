@@ -13,6 +13,7 @@
     "db:reset-data": "NODE_ENV=development tsx --env-file=.env.local scripts/db-reset-data.ts",
     "db:studio": "drizzle-kit studio",
     "db:seed": "NODE_ENV=development tsx --env-file=.env.local scripts/seed-dashboard.ts",
+    "db:seed-rosane": "NODE_ENV=development tsx --env-file=.env.local scripts/seed-rosane-month.ts",
     "tasks:test": "tsx --env-file=.env.local scripts/test-tasks.ts",
     "agent:test": "tsx --env-file=.env.local scripts/test-agent.ts",
     "webhook:simulate": "tsx --env-file=.env.local scripts/simulate-webhook.ts"

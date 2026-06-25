@@ -26,7 +26,7 @@ function parsePeriod(value: string | null): DashboardPeriod {
   if (value && PERIODS.includes(value as DashboardPeriod)) {
     return value as DashboardPeriod;
   }
-  return "today";
+  return "month";
 }
 
 function parseGranularity(
