@@ -73,3 +73,32 @@ Ou verifique traces de apps com `OTEL_EXPORTER_OTLP_ENDPOINT` configurado.
 ## Configuração Alloy
 
 Fonte: [`alloy-config.river`](alloy-config.river) — montada via Kustomize em ConfigMap `alloy-config`.
+
+Alloy usa `crds.create: false` — o CRD `podlogs.monitoring.grafana.com` já existe no cluster (Loki/agent) e conflita com a versão do chart Alloy. Nossa config usa `loki.source.kubernetes`, não PodLogs CR.
+
+## Troubleshooting ArgoCD
+
+### Prometheus — PVC `prometheus-server` OutOfSync
+
+Erro típico: `spec.resources.requests.storage: Forbidden: field can not be less than status.capacity`.
+
+Kubernetes **não permite reduzir** um PVC. Causa comum: chave `server:` duplicada no values do Helm (perde `persistentVolume.size`).
+
+1. Confira o tamanho atual:
+   ```bash
+   kubectl get pvc prometheus-server -n monitoring -o jsonpath='{.status.capacity.storage}{"\n"}'
+   ```
+2. Ajuste `server.persistentVolume.size` em `infra/argocd-apps/prometheus.yaml` para **≥** esse valor.
+3. Re-sync no ArgoCD.
+
+### Alloy — CRD `podlogs.monitoring.grafana.com`
+
+Erro típico: `v1alpha1` em `status.storedVersions` mas ausente em `spec.versions`.
+
+Conflito entre Loki (v1alpha1) e Alloy chart (v1alpha2). Solução: `crds.create: false` no Application do Alloy (já aplicado).
+
+Se ainda falhar após push, delete o CRD conflitante **somente se não usar PodLogs CR**:
+```bash
+kubectl delete crd podlogs.monitoring.grafana.com
+```
+Em seguida re-sync do Alloy (não reinstala CRDs).

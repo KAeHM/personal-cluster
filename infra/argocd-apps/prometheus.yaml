@@ -16,11 +16,6 @@ spec:
           persistentVolume:
             enabled: true
             size: 10Gi
-        alertmanager:
-          enabled: false
-        pushgateway:
-          enabled: false
-        server:
           extraScrapeConfigs: |
             - job_name: kubernetes-pods
               kubernetes_sd_configs:
@@ -46,9 +41,19 @@ spec:
                 - source_labels: [__meta_kubernetes_pod_name]
                   action: replace
                   target_label: kubernetes_pod_name
+        alertmanager:
+          enabled: false
+        pushgateway:
+          enabled: false
   destination:
     server: "https://kubernetes.default.svc"
     namespace: monitoring
+  ignoreDifferences:
+    - group: ""
+      kind: PersistentVolumeClaim
+      name: prometheus-server
+      jsonPointers:
+        - /spec/resources/requests/storage
   syncPolicy:
     automated:
       prune: true
