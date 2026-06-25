@@ -3,6 +3,10 @@ kind: Service
 metadata:
   name: web-app
   namespace: personal-assistence
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/api/metrics"
 spec:
   selector:
     app: web-app
@@ -121,15 +125,23 @@ spec:
                   name: app-secrets
                   key: AUTH_EMAIL_FROM
                   optional: true
+            - name: LOG_LEVEL
+              value: "info"
+            - name: OTEL_SERVICE_NAME
+              value: "personal-assistence-web"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://alloy.monitoring.svc.cluster.local:4318"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "http/protobuf"
           readinessProbe:
             httpGet:
-              path: /auth
+              path: /api/ready
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /auth
+              path: /api/health
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 20
