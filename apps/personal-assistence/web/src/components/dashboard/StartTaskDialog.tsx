@@ -150,9 +150,7 @@ export function StartTaskDialog({ onTaskChanged }: StartTaskDialogProps) {
       setSuccessMessage("Tarefa retomada.");
     } else if (data.status === "started") {
       const pausedNote =
-        data.pausedDescription != null
-          ? ` A tarefa anterior foi pausada.`
-          : "";
+        data.pausedDescription != null ? ` A tarefa anterior foi pausada.` : "";
       setSuccessMessage(`Nova tarefa iniciada.${pausedNote}`);
     }
 
@@ -179,27 +177,25 @@ export function StartTaskDialog({ onTaskChanged }: StartTaskDialogProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Iniciar tarefa</DialogTitle>
-          <DialogDescription>
-            Comece a contar o tempo agora, como no fluxo do WhatsApp.
-          </DialogDescription>
+          <DialogDescription>Comece a contar o tempo agora.</DialogDescription>
         </DialogHeader>
 
         {successMessage ? (
-          <p className="rounded-lg bg-[oklch(0.70_0.17_160/0.12)] px-3 py-3 text-sm text-foreground">
+          <p className="text-foreground rounded-lg bg-[oklch(0.70_0.17_160/0.12)] px-3 py-3 text-sm">
             {successMessage}
           </p>
         ) : duplicate ? (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Já existe uma tarefa pausada parecida com{" "}
-              <span className="font-medium text-foreground">
+              <span className="text-foreground font-medium">
                 “{duplicate.pausedDescription}”
               </span>
               . O que deseja fazer?
             </p>
 
             {error && (
-              <p className="text-sm text-destructive" role="alert">
+              <p className="text-destructive text-sm" role="alert">
                 {error}
               </p>
             )}
@@ -252,7 +248,7 @@ export function StartTaskDialog({ onTaskChanged }: StartTaskDialogProps) {
             <div className="space-y-2">
               <label
                 htmlFor="start-description"
-                className="text-sm font-medium leading-none"
+                className="text-sm leading-none font-medium"
               >
                 Descrição
               </label>
@@ -270,7 +266,7 @@ export function StartTaskDialog({ onTaskChanged }: StartTaskDialogProps) {
             <div className="space-y-2">
               <label
                 htmlFor="start-context"
-                className="text-sm font-medium leading-none"
+                className="text-sm leading-none font-medium"
               >
                 Contexto
               </label>
@@ -284,7 +280,7 @@ export function StartTaskDialog({ onTaskChanged }: StartTaskDialogProps) {
             <div className="space-y-2">
               <label
                 htmlFor="start-estimated"
-                className="text-sm font-medium leading-none"
+                className="text-sm leading-none font-medium"
               >
                 Tempo estimado (minutos, opcional)
               </label>
@@ -301,7 +297,7 @@ export function StartTaskDialog({ onTaskChanged }: StartTaskDialogProps) {
             </div>
 
             {error && (
-              <p className="text-sm text-destructive" role="alert">
+              <p className="text-destructive text-sm" role="alert">
                 {error}
               </p>
             )}

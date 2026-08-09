@@ -1,6 +1,10 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import type { CanvasElement, Content, TDocumentDefinitions } from "pdfmake/interfaces";
+import type {
+  CanvasElement,
+  Content,
+  TDocumentDefinitions,
+} from "pdfmake/interfaces";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 
@@ -92,10 +96,16 @@ function buildDailyChart(points: DashboardChart["points"]): Content {
   }
 
   const labelStep =
-    points.length <= 10 ? 1 : points.length <= 31 ? 2 : Math.ceil(points.length / 12);
+    points.length <= 10
+      ? 1
+      : points.length <= 31
+        ? 2
+        : Math.ceil(points.length / 12);
 
   const labels = points
-    .filter((_, index) => index % labelStep === 0 || index === points.length - 1)
+    .filter(
+      (_, index) => index % labelStep === 0 || index === points.length - 1,
+    )
     .map((point) => point.label)
     .join("   ");
 
@@ -118,10 +128,7 @@ function buildDailyChart(points: DashboardChart["points"]): Content {
   };
 }
 
-function buildTasksTable(
-  tasks: DashboardTask[],
-  timezone: string,
-): Content {
+function buildTasksTable(tasks: DashboardTask[], timezone: string): Content {
   const header = [
     { text: "Descrição", style: "tableHeader" },
     { text: "Contexto", style: "tableHeader" },
@@ -162,7 +169,11 @@ function buildTasksTable(
             header,
             ...body,
             [
-              { text: "Total (tarefas listadas)", colSpan: 4, style: "tableFooter" },
+              {
+                text: "Total (tarefas listadas)",
+                colSpan: 4,
+                style: "tableFooter",
+              },
               {},
               {},
               {},

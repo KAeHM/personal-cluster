@@ -1,0 +1,25 @@
+---
+description: Route Handlers — API externa, API key, erros, métricas
+globs: src/app/api/**/*
+alwaysApply: false
+---
+
+# Route Handlers (API)
+
+## External API (`/api/v1/*`)
+
+- Auth: `isValidApiKey(request)` — header `x-api-key` or `Bearer`.
+- Validate body with the same Zod schema as Server Actions (`application/schemas`).
+- Call use cases from `@/modules/<m>` — no business logic in the route.
+- Errors: `errorResponse(error, { route, method })` from `@/common/adapters/http/error-response`.
+- Metrics: wrap handlers with `withRouteMetrics(method, route, fn)` when adding routes.
+
+## Probes & observability
+
+- `GET /api/health` — liveness (no DB).
+- `GET /api/ready` — readiness (`select 1`).
+- `GET /api/metrics` — Prometheus scrape (internal only in prod).
+
+## Auth routes
+
+`app/auth/callback/` — Supabase OAuth/PKCE callback; login logic lives in Server Actions.

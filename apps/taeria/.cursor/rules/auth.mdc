@@ -1,0 +1,24 @@
+---
+description: Auth — sessão Supabase, guards, server actions
+globs: src/modules/auth/**/*
+alwaysApply: false
+---
+
+# Auth module
+
+## Concerns
+
+- **session** — `AuthProviderPort`, Supabase Auth (cookies JWT), `getSession` / `signOut` via facade.
+- **profiles** — tabela `profiles` vinculada a `auth.users` (role em `app_metadata`).
+
+## Rules
+
+- App code uses `@/modules/auth` facade/guards — not `@supabase/*` outside `infrastructure/` e `common/adapters/supabase/`.
+- Login via `signInWithPassword` na Server Action; sessão enriquecida com perfil (`role`).
+- Guards (`requireAuth`, `requireRole`) throw `AUTH_ERRORS` — no redirects in application layer.
+
+## Client imports
+
+Import `signInAction` from `presentation/actions/auth.actions.ts` and `SignInState` from `types.ts` — not the module barrel in Client Components.
+
+Read: `src/modules/auth/README.md`.

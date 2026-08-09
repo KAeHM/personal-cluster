@@ -35,7 +35,6 @@ export function UserMenu() {
   const { user } = useShell();
   const displayName = user.name?.trim() || "Usuário";
   const displayEmail = user.email ?? "—";
-  const displayPhone = user.phone?.trim() || "—";
   const initials = getInitials(user.name, user.email);
 
   return (
@@ -44,7 +43,7 @@ export function UserMenu() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-9 gap-2 px-2 text-foreground/90 hover:bg-white/10 hover:text-white"
+          className="text-foreground/90 h-9 gap-2 px-2 hover:bg-white/10 hover:text-white"
         >
           <Avatar className="size-7">
             <AvatarFallback className="bg-white/15 text-[11px] text-white">
@@ -60,10 +59,9 @@ export function UserMenu() {
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel className="space-y-2 p-3 font-normal">
           <p className="text-sm leading-none font-medium">{displayName}</p>
-          <div className="space-y-1 text-xs text-muted-foreground">
-            <p className="truncate">{displayEmail}</p>
-            <p className="font-mono text-[11px]">{displayPhone}</p>
-          </div>
+          <p className="text-muted-foreground truncate text-xs">
+            {displayEmail}
+          </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
@@ -77,7 +75,7 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+          className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer gap-2"
           onClick={() => signOut({ callbackUrl: "/auth" })}
         >
           <LogOut className="size-4" />

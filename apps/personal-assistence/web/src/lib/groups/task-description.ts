@@ -10,8 +10,7 @@ export function buildTaskDescription(
 
   const wordCount = description.split(/\s+/).filter(Boolean).length;
   const isTooShort =
-    description.length < MIN_DESCRIPTION_LENGTH ||
-    wordCount < MIN_WORD_COUNT;
+    description.length < MIN_DESCRIPTION_LENGTH || wordCount < MIN_WORD_COUNT;
 
   if (!isTooShort || !groupLabel?.trim()) {
     return description;

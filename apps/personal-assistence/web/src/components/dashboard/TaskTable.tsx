@@ -55,7 +55,7 @@ export function TaskTable({
 
   if (total === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border/60 py-16 text-muted-foreground">
+      <div className="border-border/60 text-muted-foreground flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
         <p className="text-sm">Nenhuma tarefa encontrada para os filtros.</p>
       </div>
     );
@@ -63,10 +63,10 @@ export function TaskTable({
 
   return (
     <>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         Clique em uma tarefa para ver pausas, retomadas e tempo por trecho.
       </p>
-      <div className="rounded-lg border border-border/60">
+      <div className="border-border/60 rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -82,10 +82,12 @@ export function TaskTable({
             {tasks.map((task) => (
               <TableRow
                 key={task.id}
-                className="cursor-pointer hover:bg-muted/40"
+                className="hover:bg-muted/40 cursor-pointer"
                 onClick={() => openTaskDetail(task)}
               >
-                <TableCell className="font-medium">{task.description}</TableCell>
+                <TableCell className="font-medium">
+                  {task.description}
+                </TableCell>
                 <TableCell>
                   {task.groupLabel ? (
                     <Badge variant="outline" className="font-normal">
@@ -99,9 +101,7 @@ export function TaskTable({
                   {formatDateTime(task.startedAt, timezone)}
                 </TableCell>
                 <TableCell className="table-time">
-                  {task.endedAt
-                    ? formatDateTime(task.endedAt, timezone)
-                    : "—"}
+                  {task.endedAt ? formatDateTime(task.endedAt, timezone) : "—"}
                 </TableCell>
                 <TableCell className="table-time">
                   {task.durationMinutes != null
@@ -140,7 +140,7 @@ export function TaskTable({
 
       {totalPages > 1 && (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             {rangeStart}–{rangeEnd} de {total}{" "}
             {total === 1 ? "registro" : "registros"}
           </p>
@@ -155,7 +155,7 @@ export function TaskTable({
             >
               <ChevronLeft className="size-4" />
             </Button>
-            <span className="min-w-24 text-center text-xs text-muted-foreground">
+            <span className="text-muted-foreground min-w-24 text-center text-xs">
               Página {page} de {totalPages}
             </span>
             <Button

@@ -3,7 +3,4 @@ kind: ConfigMap
 metadata:
   name: postgres-init
   namespace: personal-assistence
-data:
-  02-evolution-db.sql: |
-    CREATE DATABASE evolution;
-    GRANT ALL PRIVILEGES ON DATABASE evolution TO admin;
+data: {}

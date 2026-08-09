@@ -1,0 +1,39 @@
+---
+description: Makefile, CI/CD, Docker, deploy Kubernetes
+globs: "{.github/**,Makefile,Dockerfile,docker-compose.yml,docs/cluster-deploy.md,docs/github-setup.md}"
+alwaysApply: false
+---
+
+# DevOps
+
+## Monorepo (personal-cluster)
+
+- Apps vivem em `apps/<slug>/`; manifests em `infra/<slug>/`.
+- Nova app: `./scripts/new-app.sh <slug>` na raiz do monorepo.
+- CI/CD gerado em `.github/workflows/<slug>-{ci,deploy}.yaml`.
+- Imagem: `ghcr.io/kaehm/personal-cluster/<slug>-web:sha-xxxxxxx`.
+
+## Local / CI
+
+- `make check` = format + lint + typecheck + test-coverage + build.
+- CI roda em **PRs** com paths `apps/<slug>/**`.
+- Deploy na **master** → build GHCR + auto-commit do manifest.
+
+## Observabilidade (cluster)
+
+Env vars no Deployment (template em `templates/boilerplate/infra/web-app.yaml`):
+
+- `LOG_LEVEL`, `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`
+- Service annotations: `prometheus.io/scrape`, `prometheus.io/port`, `prometheus.io/path`
+
+Endpoint OTLP: `http://alloy.monitoring.svc.cluster.local:4318`
+
+## Docker
+
+- `output: standalone` in `next.config.ts`; multi-stage `Dockerfile` com stage `migrator`.
+- Native deps (`argon2`) via `serverExternalPackages`.
+
+## Setup
+
+Monorepo: [`docs/github-setup.md`](docs/github-setup.md).
+Deploy: [`docs/cluster-deploy.md`](docs/cluster-deploy.md).

@@ -32,10 +32,7 @@ type ContextMultiComboboxProps = {
   isLoading?: boolean;
 };
 
-function labelForId(
-  id: string,
-  contexts: ContextItem[],
-): string {
+function labelForId(id: string, contexts: ContextItem[]): string {
   if (id === CONTEXT_NONE_ID) return "Sem contexto";
   return contexts.find((context) => context.id === id)?.label ?? "Contexto";
 }
@@ -162,7 +159,7 @@ export function ContextMultiCombobox({
                   <CommandItem
                     value="limpar-selecao"
                     onSelect={clearAll}
-                    className="justify-center text-muted-foreground"
+                    className="text-muted-foreground justify-center"
                   >
                     Limpar seleção
                   </CommandItem>

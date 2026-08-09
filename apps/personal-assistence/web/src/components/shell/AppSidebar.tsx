@@ -5,18 +5,22 @@ import { usePathname } from "next/navigation";
 
 import { useShell } from "@/components/shell/shell-context";
 import { cn } from "@/lib/utils";
-import { APP_NAV_ITEMS } from "@/lib/shell/navigation";
+import {
+  getModuleFromPathname,
+  getModuleNavItems,
+} from "@/lib/shell/navigation";
 
 const SIDEBAR_WIDTH = "w-56";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { sidebarOpen } = useShell();
+  const navItems = getModuleNavItems(getModuleFromPathname(pathname));
 
   return (
     <aside
       className={cn(
-        "flex shrink-0 flex-col overflow-hidden border-r border-border/60 bg-sidebar",
+        "border-border/60 bg-sidebar flex shrink-0 flex-col overflow-hidden border-r",
         "shell-transition transition-[width,border-color] duration-300 ease-in-out",
         sidebarOpen ? SIDEBAR_WIDTH : "w-0 border-transparent",
       )}
@@ -27,10 +31,12 @@ export function AppSidebar() {
           "flex flex-1 flex-col gap-1 p-3",
           SIDEBAR_WIDTH,
           "transition-opacity duration-200",
-          sidebarOpen ? "opacity-100 delay-75" : "pointer-events-none opacity-0",
+          sidebarOpen
+            ? "opacity-100 delay-75"
+            : "pointer-events-none opacity-0",
         )}
       >
-        {APP_NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.exact
             ? pathname === item.href

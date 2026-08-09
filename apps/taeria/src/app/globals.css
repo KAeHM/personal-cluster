@@ -1,0 +1,253 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "tippy.js/dist/tippy.css";
+
+/* Dark mode via classe `.dark` no <html> (em vez de prefers-color-scheme),
+   para permitir um toggle de tema controlado pela aplicação. */
+@custom-variant dark (&:is(.dark *));
+
+/* =============================================================================
+   PALETA DE CORES  —  ÚNICO lugar para trocar o tema do projeto
+   -----------------------------------------------------------------------------
+   Tema "Taeria": pergaminho, ouro envelhecido e céu noturno.
+   Accent = realce neutro/quente (hovers). Verde só em `--success`.
+   Valores em OKLCH: oklch(L C H)  → L=luminância (0..1), C=croma, H=matiz.
+   ============================================================================= */
+:root {
+  --radius: 0.125rem;
+
+  /* Modo claro — pergaminho e tinta */
+  --background: oklch(0.97 0.015 90);
+  --foreground: oklch(0.28 0.04 55);
+
+  --card: oklch(0.99 0.012 92);
+  --card-foreground: oklch(0.28 0.04 55);
+
+  --popover: oklch(0.99 0.012 92);
+  --popover-foreground: oklch(0.28 0.04 55);
+
+  --primary: oklch(0.52 0.11 65);
+  --primary-foreground: oklch(0.97 0.015 90);
+
+  --secondary: oklch(0.92 0.025 85);
+  --secondary-foreground: oklch(0.32 0.04 55);
+
+  --muted: oklch(0.93 0.02 88);
+  --muted-foreground: oklch(0.5 0.03 60);
+
+  --accent: oklch(0.91 0.035 75);
+  --accent-foreground: oklch(0.32 0.04 55);
+
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.97 0.015 90);
+
+  --success: oklch(0.52 0.1 145);
+  --success-foreground: oklch(0.97 0.015 90);
+  --warning: oklch(0.72 0.14 70);
+  --warning-foreground: oklch(0.28 0.04 55);
+  --info: oklch(0.5 0.12 250);
+  --info-foreground: oklch(0.97 0.015 90);
+
+  --border: oklch(0.82 0.035 75);
+  --input: oklch(0.82 0.035 75);
+  --ring: oklch(0.52 0.11 65);
+}
+
+.dark {
+  /* Modo escuro — taverna / céu noturno */
+  --background: oklch(0.17 0.025 265);
+  --foreground: oklch(0.9 0.025 85);
+
+  --card: oklch(0.21 0.03 265);
+  --card-foreground: oklch(0.9 0.025 85);
+
+  --popover: oklch(0.21 0.03 265);
+  --popover-foreground: oklch(0.9 0.025 85);
+
+  --primary: oklch(0.75 0.12 78);
+  --primary-foreground: oklch(0.2 0.04 78);
+
+  --secondary: oklch(0.26 0.025 265);
+  --secondary-foreground: oklch(0.9 0.025 85);
+
+  --muted: oklch(0.26 0.02 265);
+  --muted-foreground: oklch(0.65 0.025 85);
+
+  --accent: oklch(0.25 0.03 265);
+  --accent-foreground: oklch(0.9 0.025 85);
+
+  --destructive: oklch(0.65 0.18 22);
+  --destructive-foreground: oklch(0.97 0.015 90);
+
+  --success: oklch(0.62 0.12 155);
+  --success-foreground: oklch(0.17 0.025 265);
+  --warning: oklch(0.78 0.14 75);
+  --warning-foreground: oklch(0.2 0.04 75);
+  --info: oklch(0.6 0.14 250);
+  --info-foreground: oklch(0.97 0.015 90);
+
+  --border: oklch(0.75 0.04 85 / 12%);
+  --input: oklch(0.75 0.04 85 / 18%);
+  --ring: oklch(0.75 0.12 78);
+}
+
+/* =============================================================================
+   MAPA DE TOKENS  →  utilitários do Tailwind
+   ============================================================================= */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: 0;
+  --radius-md: 0.125rem;
+  --radius-lg: 0.125rem;
+  --radius-xl: 0.25rem;
+
+  --font-sans: var(--font-sans-base), "Times New Roman", serif;
+  --font-display: var(--font-display-base), ui-serif, Georgia, serif;
+  --font-mono: var(--font-mono-base), ui-monospace, SFMono-Regular, monospace;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-semibold tracking-wide;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  html[data-magicui-theme-vt="active"]::view-transition-new(root) {
+    clip-path: var(--magicui-theme-vt-clip-from);
+  }
+}
+
+/* Tipografia de leitura da Wiki do jogador */
+.wiki-prose {
+  @apply font-sans text-lg leading-[1.75];
+  max-width: 42rem;
+}
+
+.lore-novel-editor .ProseMirror {
+  @apply outline-none;
+}
+
+.lore-novel-editor .lore-novel-prose,
+.lore-novel-editor .wiki-prose {
+  max-width: none;
+}
+
+.lore-novel-editor .ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-muted-foreground pointer-events-none float-left h-0;
+  content: attr(data-placeholder);
+}
+
+.lore-novel-editor .ProseMirror img {
+  @apply my-4 h-auto max-w-full rounded-md;
+}
+
+.wiki-prose img {
+  @apply my-4 h-auto max-w-full rounded-md;
+}
+
+.wiki-prose > * + * {
+  @apply mt-4;
+}
+
+.wiki-prose h1 {
+  @apply font-display text-[2.25rem] font-semibold tracking-wide;
+}
+
+.wiki-prose h2 {
+  @apply font-display text-[1.75rem] font-semibold tracking-wide;
+}
+
+.wiki-prose h3 {
+  @apply font-display text-[1.375rem] font-medium tracking-wide;
+}
+
+.wiki-prose p {
+  @apply leading-[1.75];
+}
+
+.wiki-prose ul {
+  @apply list-disc space-y-2 pl-5;
+}
+
+.wiki-prose ol {
+  @apply list-decimal space-y-2 pl-5;
+}
+
+.wiki-prose blockquote {
+  @apply border-muted text-muted-foreground border-l-2 pl-4 italic;
+}
+
+.wiki-prose code {
+  @apply bg-muted rounded px-1 py-0.5 text-[0.9em];
+}
+
+.wiki-prose pre {
+  @apply bg-muted/50 overflow-x-auto rounded-md p-4 text-base;
+}
+
+.wiki-prose pre code {
+  @apply bg-transparent p-0;
+}

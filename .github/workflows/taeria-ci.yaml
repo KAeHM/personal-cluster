@@ -1,0 +1,61 @@
+name: CI — Taeria
+
+on:
+  pull_request:
+    paths:
+      - "apps/taeria/**"
+      - ".github/workflows/taeria-ci.yaml"
+
+concurrency:
+  group: ci-taeria-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-dummy-anon-key
+  SUPABASE_SERVICE_ROLE_KEY: ci-dummy-service-role-key
+
+jobs:
+  check:
+    name: Lint, types, testes e build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/taeria
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/taeria/package-lock.json
+      - run: npm ci
+      - run: make check
+
+  e2e:
+    name: Testes E2E (Playwright + Supabase local)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/taeria
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/taeria/package-lock.json
+      - run: npm ci
+      - run: supabase start -x imgproxy,edge-runtime,logflare
+      - name: Export Supabase env
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(supabase status -o env | grep API_URL | cut -d= -f2-)" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | grep ANON_KEY | cut -d= -f2-)" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d= -f2-)" >> $GITHUB_ENV
+      - run: npm run build
+      - run: npm run db:seed
+      - run: npm run test:e2e:install
+      - run: npm run test:e2e

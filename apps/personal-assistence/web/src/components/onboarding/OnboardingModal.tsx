@@ -3,7 +3,6 @@
 import { useCallback, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
-import { LinkPhoneForm } from "@/components/dashboard/LinkPhoneForm";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,7 +42,6 @@ export function OnboardingModal({
   const [stepIndex, setStepIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [phoneLinked, setPhoneLinked] = useState(false);
 
   const currentStep = ONBOARDING_STEPS[stepIndex];
   const isFirstStep = stepIndex === 0;
@@ -100,15 +98,20 @@ export function OnboardingModal({
         onInteractOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
       >
-        <div className="border-b border-border/60 px-6 py-5">
+        <div className="border-border/60 border-b px-6 py-5">
           <DialogHeader className="space-y-1 text-left">
-            <DialogTitle>Bem-vindo{userName ? `, ${userName.split(" ")[0]}` : ""}</DialogTitle>
+            <DialogTitle>
+              Bem-vindo{userName ? `, ${userName.split(" ")[0]}` : ""}
+            </DialogTitle>
             <DialogDescription>
               Configure sua conta em poucos passos
             </DialogDescription>
           </DialogHeader>
 
-          <ol className="mt-6 flex items-center gap-1" aria-label="Progresso do onboarding">
+          <ol
+            className="mt-6 flex items-center gap-1"
+            aria-label="Progresso do onboarding"
+          >
             {ONBOARDING_STEPS.map((step, index) => {
               const isActive = index === stepIndex;
               const isDone = index < stepIndex;
@@ -119,10 +122,9 @@ export function OnboardingModal({
                     className={cn(
                       "flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors",
                       isDone && "bg-primary text-primary-foreground",
-                      isActive && "bg-primary/15 text-primary ring-2 ring-primary/30",
-                      !isDone &&
-                        !isActive &&
-                        "bg-muted text-muted-foreground",
+                      isActive &&
+                        "bg-primary/15 text-primary ring-primary/30 ring-2",
+                      !isDone && !isActive && "bg-muted text-muted-foreground",
                     )}
                     aria-current={isActive ? "step" : undefined}
                   >
@@ -148,21 +150,16 @@ export function OnboardingModal({
         </div>
 
         <div className="space-y-4 px-6 py-5">
-          <StepContent
-            stepId={currentStep.id}
-            step={currentStep}
-            phoneLinked={phoneLinked}
-            onPhoneLinked={() => setPhoneLinked(true)}
-          />
+          <StepContent stepId={currentStep.id} step={currentStep} />
 
           {error && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-destructive text-sm" role="alert">
               {error}
             </p>
           )}
         </div>
 
-        <DialogFooter className="border-t border-border/60 bg-muted/30 px-6 py-4">
+        <DialogFooter className="border-border/60 bg-muted/30 border-t px-6 py-4">
           <div className="flex w-full items-center justify-between gap-2">
             <Button
               type="button"
@@ -227,92 +224,57 @@ export function OnboardingModal({
 function StepContent({
   stepId,
   step,
-  phoneLinked,
-  onPhoneLinked,
 }: {
   stepId: OnboardingStepId;
   step: (typeof ONBOARDING_STEPS)[number];
-  phoneLinked: boolean;
-  onPhoneLinked: () => void;
 }) {
   const Icon = step.icon;
 
   if (stepId === "welcome") {
     return (
       <div className="space-y-4">
-        <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <div className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-xl">
           <Icon className="size-6" />
         </div>
         <div className="space-y-2">
           <h3 className="font-medium">{step.title}</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-muted-foreground text-sm leading-relaxed">
             {step.description}
           </p>
         </div>
-        <ul className="space-y-2 text-sm text-muted-foreground">
+        <ul className="text-muted-foreground space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-primary">1.</span>
-            Envie mensagens no WhatsApp para abrir e fechar tarefas.
+            Inicie e finalize tarefas pelo dashboard.
           </li>
           <li className="flex gap-2">
             <span className="text-primary">2.</span>
-            Acompanhe horas e métricas neste dashboard.
+            Acompanhe horas, métricas e relatórios.
           </li>
           <li className="flex gap-2">
             <span className="text-primary">3.</span>
-            Vincule seu número no próximo passo para unificar o histórico.
+            Organize atividades por contexto (cliente, projeto, etc.).
           </li>
         </ul>
       </div>
     );
   }
 
-  if (stepId === "phone") {
-    return (
-      <div className="space-y-4">
-        <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="size-6" />
-        </div>
-        <div className="space-y-2">
-          <h3 className="font-medium">{step.title}</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {step.description}
-          </p>
-        </div>
-        {phoneLinked ? (
-          <p
-            className="flex items-center gap-2 text-sm text-[oklch(0.70_0.17_160)]"
-            role="status"
-          >
-            <Check className="size-4 shrink-0" />
-            Número vinculado com sucesso
-          </p>
-        ) : (
-          <LinkPhoneForm
-            onLinked={() => {
-              onPhoneLinked();
-            }}
-          />
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+      <div className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-xl">
         <Icon className="size-6" />
       </div>
       <div className="space-y-2">
         <h3 className="font-medium">{step.title}</h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground text-sm leading-relaxed">
           {step.description}
         </p>
       </div>
-      <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+      <div className="border-primary/30 bg-primary/5 rounded-lg border p-4">
         <p className="text-sm font-medium">Plano Gratuito</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Timesheet via WhatsApp e dashboard. Sem custo no momento.
+        <p className="text-muted-foreground mt-1 text-xs">
+          Timesheet completo pelo dashboard. Sem custo no momento.
         </p>
       </div>
     </div>

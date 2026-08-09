@@ -1,8 +1,5 @@
 import { db } from "@/lib/db";
-import {
-  taskEvents,
-  type TaskEventMetadata,
-} from "@/lib/db/schema";
+import { taskEvents, type TaskEventMetadata } from "@/lib/db/schema";
 import type { TaskEventType } from "@/lib/tasks/timeline-types";
 
 export type RecordTaskEventInput = {

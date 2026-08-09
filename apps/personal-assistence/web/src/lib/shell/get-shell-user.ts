@@ -31,7 +31,6 @@ export async function getShellUser(): Promise<ShellUserWithOnboarding> {
     id: user.id,
     name: user.name ?? session.user.name ?? null,
     email: user.email ?? session.user.email ?? null,
-    phone: user.phone,
     timezone: user.timezone,
     hasCompletedOnboarding: hasCompletedOnboarding(user),
   };

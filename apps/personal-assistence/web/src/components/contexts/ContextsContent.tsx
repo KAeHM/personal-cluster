@@ -50,11 +50,11 @@ export function ContextsContent({ initialData }: ContextsContentProps) {
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6 md:p-8">
       <div>
-        <p className="text-sm text-muted-foreground">
-          Contextos criados automaticamente pelo WhatsApp. Aliases unem nomes
-          parecidos ao mesmo contexto.
+        <p className="text-muted-foreground text-sm">
+          Contextos de trabalho usados nas tarefas. Aliases unem nomes parecidos
+          ao mesmo contexto.
           {isRefreshing && (
-            <span className="ml-2 inline-flex items-center gap-1 text-primary">
+            <span className="text-primary ml-2 inline-flex items-center gap-1">
               <Loader2 className="size-3 animate-spin" />
               Atualizando…
             </span>
@@ -63,13 +63,13 @@ export function ContextsContent({ initialData }: ContextsContentProps) {
       </div>
 
       {error && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-destructive text-sm" role="alert">
           {error}
         </p>
       )}
 
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           {data.contexts.length}{" "}
           {data.contexts.length === 1 ? "registrado" : "registrados"}
         </span>

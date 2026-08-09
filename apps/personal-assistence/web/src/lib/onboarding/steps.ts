@@ -1,35 +1,23 @@
 import type { LucideIcon } from "lucide-react";
-import { CreditCard, MessageCircle, Sparkles } from "lucide-react";
+import { CreditCard, Sparkles } from "lucide-react";
 
-export type OnboardingStepId = "welcome" | "phone" | "plan";
+export type OnboardingStepId = "welcome" | "plan";
 
 export type OnboardingStep = {
   id: OnboardingStepId;
   title: string;
   description: string;
   icon: LucideIcon;
-  /** Step can be skipped (e.g. phone until Twilio is ready). */
   skippable?: boolean;
 };
 
-/**
- * Ordered onboarding steps. Add or reorder entries here as the product grows.
- */
 export const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: "welcome",
     title: "Como funciona",
     description:
-      "Registre tarefas pelo WhatsApp ou pelo dashboard. O assistente entende linguagem natural para iniciar, pausar e encerrar atividades.",
+      "Registre tarefas pelo dashboard: inicie, pause, retome e finalize atividades. Acompanhe horas e métricas em tempo real.",
     icon: Sparkles,
-  },
-  {
-    id: "phone",
-    title: "Vincular WhatsApp",
-    description:
-      "Conecte seu número para registrar horas por mensagem. Em breve: validação por SMS com Twilio.",
-    icon: MessageCircle,
-    skippable: true,
   },
   {
     id: "plan",

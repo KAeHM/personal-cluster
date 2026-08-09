@@ -8,7 +8,7 @@ import {
   finishTask,
   getActiveTask,
   getPausedTasks,
-  getOrCreateUserByPhone,
+  getOrCreateUserByEmail,
   listTasksByUser,
   startTask,
 } from "../src/lib/tasks/queries";
@@ -20,23 +20,34 @@ import {
 import { getLiveTrackedMinutes } from "../src/lib/tasks/time-tracking";
 
 async function main() {
-  console.log("=== WhatsApp Time Tracker — Task CRUD Test ===\n");
+  console.log("=== Time Tracker — Task CRUD Test ===\n");
 
-  const phone = "5511999990001";
-  const user = await getOrCreateUserByPhone(phone, "Dev User");
-  console.log(`User: ${user.id} (${user.phone})\n`);
+  const email = "dev-test@example.com";
+  const user = await getOrCreateUserByEmail(email, "Dev User");
+  console.log(`User: ${user.id} (${user.email})\n`);
 
-  const r1 = await startTask({ userId: user.id, description: "Relatório mensal", estimatedMinutes: 60 });
+  const r1 = await startTask({
+    userId: user.id,
+    description: "Relatório mensal",
+    estimatedMinutes: 60,
+  });
   if (r1.status !== "started") throw new Error("expected started");
   console.log(`✓ Started: ${r1.task.description}`);
 
-  const r2 = await startTask({ userId: user.id, description: "Feature de login" });
+  const r2 = await startTask({
+    userId: user.id,
+    description: "Feature de login",
+  });
   if (r2.status !== "started") throw new Error("expected started");
-  console.log(`✓ Started: ${r2.task.description} (paused: ${r2.pausedDescription})`);
+  console.log(
+    `✓ Started: ${r2.task.description} (paused: ${r2.pausedDescription})`,
+  );
 
   const active = await getActiveTask(user.id);
   const paused = await getPausedTasks(user.id);
-  console.log(`\nActive: ${active?.description ?? "none"}, Paused: ${paused.length}`);
+  console.log(
+    `\nActive: ${active?.description ?? "none"}, Paused: ${paused.length}`,
+  );
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
 

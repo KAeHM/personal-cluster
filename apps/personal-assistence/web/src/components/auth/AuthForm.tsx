@@ -42,9 +42,9 @@ export function AuthForm() {
   }
 
   return (
-    <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur-sm">
+    <Card className="border-border/60 bg-card/80 w-full max-w-md backdrop-blur-sm">
       <CardHeader className="space-y-3 text-center">
-        <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <div className="bg-primary/10 text-primary mx-auto flex size-12 items-center justify-center rounded-xl">
           <Timer className="size-6" />
         </div>
         <CardTitle className="text-2xl font-semibold">Time Tracker</CardTitle>
@@ -59,7 +59,7 @@ export function AuthForm() {
               Nome
             </label>
             <div className="relative">
-              <User className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <User className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <Input
                 id="name"
                 type="text"
@@ -91,7 +91,7 @@ export function AuthForm() {
           </div>
 
           {error && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-destructive text-sm" role="alert">
               {error}
             </p>
           )}

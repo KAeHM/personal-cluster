@@ -1,0 +1,16 @@
+---
+description: Contexto do produto Taeria — leia PROJECT.md antes de features
+alwaysApply: true
+---
+
+# Product context — Taeria
+
+Este repositório é o **Taeria**, não o boilerplate genérico.
+
+- **O que é:** companheiro digital de um RPG proprietário — worldbuild rico + mesas/sessões.
+- **Público:** Mestre (GM) e Jogadores convidados às mesas.
+- **Escopo e fora de escopo:** leia [`PROJECT.md`](../../PROJECT.md) antes de implementar features.
+- **Tom na UI:** linguagem acessível para jogadores de mesa, não jargão técnico.
+- **Arquitetura de código:** siga [`AGENTS.md`](../../AGENTS.md) e as demais rules em `.cursor/rules/`.
+- Não adicionar features de plataforma genérica (multi-mundo, outros GMs, grid de combate).
+- Não refatorar módulos não relacionados à tarefa em curso.

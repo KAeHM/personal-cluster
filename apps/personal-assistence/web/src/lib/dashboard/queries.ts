@@ -158,23 +158,23 @@ export async function getDashboardData(
   filters: DashboardFilters,
 ): Promise<DashboardData> {
   const [todayMinutes, taskRows, statusCounts, chart] = await Promise.all([
-      getTotalMinutesToday(userId, timezone),
-      listTasksPaginated(userId, timezone, filters),
-      db
-        .select({
-          status: tasks.status,
-          count: sql<number>`count(*)::int`,
-        })
-        .from(tasks)
-        .where(
-          and(
-            eq(tasks.userId, userId),
-            inArray(tasks.status, ["active", "paused"]),
-          ),
-        )
-        .groupBy(tasks.status),
-      getDashboardChart(userId, timezone, filters, filters.granularity),
-    ]);
+    getTotalMinutesToday(userId, timezone),
+    listTasksPaginated(userId, timezone, filters),
+    db
+      .select({
+        status: tasks.status,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.userId, userId),
+          inArray(tasks.status, ["active", "paused"]),
+        ),
+      )
+      .groupBy(tasks.status),
+    getDashboardChart(userId, timezone, filters, filters.granularity),
+  ]);
 
   let activeTasksCount = 0;
   let pausedTasksCount = 0;

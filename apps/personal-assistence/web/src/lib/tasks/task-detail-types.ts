@@ -20,13 +20,6 @@ export type TaskTimelinePeriodItem = {
 
 export type TaskTimelineItem = TaskTimelineEventItem | TaskTimelinePeriodItem;
 
-export type TaskLinkedMessage = {
-  id: string;
-  direction: "in" | "out";
-  content: string | null;
-  createdAt: string;
-};
-
 export type TaskDetailResponse = {
   taskId: string;
   description: string;
@@ -37,7 +30,6 @@ export type TaskDetailResponse = {
   totalWorkedMinutes: number;
   hasEventHistory: boolean;
   items: TaskTimelineItem[];
-  messages: TaskLinkedMessage[];
 };
 
 export type TaskAction = "pause" | "resume" | "finish";

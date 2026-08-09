@@ -1,7 +1,8 @@
 import { registerOTel } from "@vercel/otel";
 import type { Instrumentation } from "next";
 
-import { getLogger, initLogger } from "@/lib/observability/logger";
+import { initLogger } from "@/common/adapters/logger";
+import { logError } from "@/common/errors";
 
 export function registerInstrumentation(): void {
   if (process.env.OTEL_SDK_DISABLED === "true") {
@@ -28,17 +29,13 @@ export const handleRequestError: Instrumentation.onRequestError = async (
 
   const err = error as Error & { digest?: string };
 
-  getLogger().error(
-    {
-      err,
-      requestId,
-      digest: err.digest,
-      path: request.path,
-      method: request.method,
-      routePath: context.routePath,
-      routeType: context.routeType,
-      routerKind: context.routerKind,
-    },
-    "Request error",
-  );
+  logError(err, {
+    requestId,
+    digest: err.digest,
+    path: request.path,
+    method: request.method,
+    routePath: context.routePath,
+    routeType: context.routeType,
+    routerKind: context.routerKind,
+  });
 };

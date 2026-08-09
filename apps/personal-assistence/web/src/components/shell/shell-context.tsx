@@ -13,8 +13,6 @@ import type { RightPanelId, ShellUser } from "@/lib/shell/types";
 
 type ShellContextValue = {
   user: ShellUser;
-  hasPhone: boolean;
-  setUserPhone: (phone: string) => void;
   sidebarOpen: boolean;
   rightPanel: RightPanelId | null;
   toggleSidebar: () => void;
@@ -30,16 +28,13 @@ type ShellProviderProps = {
   children: ReactNode;
 };
 
-export function ShellProvider({ user: initialUser, children }: ShellProviderProps) {
-  const [user, setUser] = useState(initialUser);
+export function ShellProvider({
+  user: initialUser,
+  children,
+}: ShellProviderProps) {
+  const [user] = useState(initialUser);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [rightPanel, setRightPanel] = useState<RightPanelId | null>(null);
-
-  const hasPhone = !!user.phone?.trim();
-
-  const setUserPhone = useCallback((phone: string) => {
-    setUser((current) => ({ ...current, phone }));
-  }, []);
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((open) => !open);
@@ -56,8 +51,6 @@ export function ShellProvider({ user: initialUser, children }: ShellProviderProp
   const value = useMemo(
     () => ({
       user,
-      hasPhone,
-      setUserPhone,
       sidebarOpen,
       rightPanel,
       toggleSidebar,
@@ -67,8 +60,6 @@ export function ShellProvider({ user: initialUser, children }: ShellProviderProp
     }),
     [
       user,
-      hasPhone,
-      setUserPhone,
       sidebarOpen,
       rightPanel,
       toggleSidebar,

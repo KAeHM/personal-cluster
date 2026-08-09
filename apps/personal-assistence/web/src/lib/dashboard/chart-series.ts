@@ -49,7 +49,16 @@ function rangeBounds(
   const [fromYear, fromMonth, fromDay] = from.split("-").map(Number);
   const [toYear, toMonth, toDay] = to.split("-").map(Number);
 
-  const start = TZDate.tz(timezone, fromYear, fromMonth - 1, fromDay, 0, 0, 0, 0);
+  const start = TZDate.tz(
+    timezone,
+    fromYear,
+    fromMonth - 1,
+    fromDay,
+    0,
+    0,
+    0,
+    0,
+  );
   const end = TZDate.tz(timezone, toYear, toMonth - 1, toDay, 23, 59, 59, 999);
 
   return { start: new Date(start.getTime()), end: new Date(end.getTime()) };
@@ -163,8 +172,7 @@ function generateBucketKeys(
 
   while (cursor <= end) {
     keys.push(formatBucketKey(cursor, granularity, timezone));
-    cursor =
-      granularity === "day" ? addDays(cursor, 1) : addHours(cursor, 1);
+    cursor = granularity === "day" ? addDays(cursor, 1) : addHours(cursor, 1);
   }
 
   return keys;
@@ -215,11 +223,7 @@ export async function getDashboardChart(
   const { from, to } = resolveFilterDateRange(filters, timezone);
   const rangeDays = countRangeDays(from, to);
   const hourGranularityAllowed = isHourGranularityAllowed(from, to);
-  const granularity = resolveChartGranularity(
-    requestedGranularity,
-    from,
-    to,
-  );
+  const granularity = resolveChartGranularity(requestedGranularity, from, to);
   const { start: rangeStart, end: rangeEnd } = rangeBounds(from, to, timezone);
 
   const taskRows = await listTasksOverlappingRange(
@@ -230,11 +234,14 @@ export async function getDashboardChart(
   );
 
   const taskIds = taskRows.map((task) => task.id);
-  const eventsByTask = new Map<string, Array<{
-    type: TaskEventType;
-    occurredAt: Date;
-    segmentMinutes: number | null;
-  }>>();
+  const eventsByTask = new Map<
+    string,
+    Array<{
+      type: TaskEventType;
+      occurredAt: Date;
+      segmentMinutes: number | null;
+    }>
+  >();
 
   if (taskIds.length > 0) {
     const events = await db.query.taskEvents.findMany({

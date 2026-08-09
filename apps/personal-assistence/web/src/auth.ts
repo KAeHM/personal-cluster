@@ -8,12 +8,7 @@ import type { Provider } from "next-auth/providers";
 
 import { authConfig } from "@/auth.config";
 import { db, getDb } from "@/lib/db";
-import {
-  accounts,
-  sessions,
-  users,
-  verificationTokens,
-} from "@/lib/db/schema";
+import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema";
 import { getOrCreateUserByEmail } from "@/lib/tasks/queries";
 
 function buildProviders(): Provider[] {

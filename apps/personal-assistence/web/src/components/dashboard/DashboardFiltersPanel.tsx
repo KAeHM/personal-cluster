@@ -21,7 +21,9 @@ type DashboardFiltersPanelProps = {
   timezone: string;
 };
 
-export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) {
+export function DashboardFiltersPanel({
+  timezone,
+}: DashboardFiltersPanelProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -79,17 +81,16 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
 
   const activeCount = countActiveDashboardFilters(applied);
   const draftActiveCount = countActiveDashboardFilters(draft);
-  const hasPendingChanges =
-    JSON.stringify(draft) !== JSON.stringify(applied);
+  const hasPendingChanges = JSON.stringify(draft) !== JSON.stringify(applied);
 
   return (
     <div className="space-y-6 text-sm">
       <div className="space-y-3">
         <div className="space-y-1">
-          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
             Período
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Fuso: {timezone.replaceAll("_", " ")}
           </p>
         </div>
@@ -106,7 +107,7 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
       <Separator />
 
       <div className="space-y-3">
-        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
           Contextos
         </p>
         <ContextMultiCombobox
@@ -118,7 +119,7 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
           disabled={isLoadingContexts}
           isLoading={isLoadingContexts}
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Selecione um ou mais contextos. Deixe vazio para exibir todos.
         </p>
       </div>
@@ -126,7 +127,7 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
       <Separator />
 
       <div className="space-y-3">
-        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
           Descrição
         </p>
         <Input
@@ -145,7 +146,7 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
             }
           }}
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Busca parcial, sem diferenciar maiúsculas e minúsculas.
         </p>
       </div>
@@ -171,9 +172,7 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
           size="sm"
           onClick={handleReset}
           disabled={
-            activeCount === 0 &&
-            applied.period === "month" &&
-            !applied.search
+            activeCount === 0 && applied.period === "month" && !applied.search
           }
         >
           Limpar filtros
@@ -181,9 +180,9 @@ export function DashboardFiltersPanel({ timezone }: DashboardFiltersPanelProps) 
       </div>
 
       {activeCount > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {activeCount}{" "}
-          {activeCount === 1 ? "filtro ativo" : "filtros ativos"} na listagem.
+        <p className="text-muted-foreground text-xs">
+          {activeCount} {activeCount === 1 ? "filtro ativo" : "filtros ativos"}{" "}
+          na listagem.
         </p>
       )}
     </div>

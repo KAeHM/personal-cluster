@@ -1,23 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  CheckCircle2,
-  Loader2,
-  MessageSquare,
-  Pause,
-  Play,
-  Trash2,
-} from "lucide-react";
+import { CheckCircle2, Loader2, Pause, Play, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +19,6 @@ import { formatMinutes } from "@/lib/format/time";
 import type {
   TaskAction,
   TaskDetailResponse,
-  TaskLinkedMessage,
 } from "@/lib/tasks/task-detail-types";
 
 type TaskDetailDialogProps = {
@@ -83,39 +70,6 @@ function detailToDashboardTask(detail: TaskDetailResponse): DashboardTask {
   };
 }
 
-function MessageBubble({
-  message,
-  timezone,
-}: {
-  message: TaskLinkedMessage;
-  timezone: string;
-}) {
-  const isInbound = message.direction === "in";
-
-  return (
-    <div
-      className={`flex ${isInbound ? "justify-start" : "justify-end"}`}
-    >
-      <div
-        className={`max-w-[92%] rounded-xl px-3 py-2 text-sm ${
-          isInbound
-            ? "rounded-bl-sm bg-muted/80 text-foreground"
-            : "rounded-br-sm bg-primary/10 text-foreground"
-        }`}
-      >
-        <div className="mb-1 flex items-center gap-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-          <span>{isInbound ? "Você" : "Assistente"}</span>
-          <span>·</span>
-          <span>{formatDateTime(message.createdAt, timezone)}</span>
-        </div>
-        <p className="whitespace-pre-wrap break-words leading-relaxed">
-          {message.content?.trim() || "—"}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export function TaskDetailDialog({
   task,
   timezone,
@@ -126,9 +80,9 @@ export function TaskDetailDialog({
 }: TaskDetailDialogProps) {
   const [detail, setDetail] = useState<TaskDetailResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState<TaskAction | "delete" | null>(
-    null,
-  );
+  const [actionLoading, setActionLoading] = useState<
+    TaskAction | "delete" | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
@@ -193,7 +147,9 @@ export function TaskDetailDialog({
       onTaskChanged?.();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Não foi possível atualizar a tarefa",
+        err instanceof Error
+          ? err.message
+          : "Não foi possível atualizar a tarefa",
       );
     } finally {
       setActionLoading(null);
@@ -226,7 +182,9 @@ export function TaskDetailDialog({
       onOpenChange(false);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Não foi possível excluir a tarefa",
+        err instanceof Error
+          ? err.message
+          : "Não foi possível excluir a tarefa",
       );
     } finally {
       setActionLoading(null);
@@ -242,7 +200,7 @@ export function TaskDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl lg:max-w-4xl">
-        <div className="border-b bg-muted/30 px-6 py-5">
+        <div className="bg-muted/30 border-b px-6 py-5">
           <DialogHeader className="gap-3 text-left">
             <DialogTitle className="pr-8 text-xl leading-snug">
               {detail?.description ?? task.description}
@@ -267,7 +225,7 @@ export function TaskDetailDialog({
                   </Badge>
                 )}
                 {detail && (
-                  <span className="text-sm font-medium text-foreground/90">
+                  <span className="text-foreground/90 text-sm font-medium">
                     Total: {formatMinutes(detail.totalWorkedMinutes)}
                   </span>
                 )}
@@ -328,14 +286,14 @@ export function TaskDetailDialog({
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {loading && (
-            <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex items-center justify-center gap-2 py-12 text-sm">
               <Loader2 className="size-4 animate-spin" />
               Carregando detalhes…
             </div>
           )}
 
           {error && (
-            <p className="mb-4 text-sm text-destructive" role="alert">
+            <p className="text-destructive mb-4 text-sm" role="alert">
               {error}
             </p>
           )}
@@ -343,7 +301,7 @@ export function TaskDetailDialog({
           {detail && !loading && (
             <>
               {!detail.hasEventHistory && (
-                <p className="mb-4 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mb-4 text-xs">
                   Histórico detalhado disponível para tarefas criadas após a
                   atualização de auditoria.
                 </p>
@@ -357,23 +315,29 @@ export function TaskDetailDialog({
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="px-4">
-                    <ol className="relative space-y-0 border-l border-border/80 pl-4">
+                    <ol className="border-border/80 relative space-y-0 border-l pl-4">
                       {detail.items.map((item, index) => {
                         if (item.kind === "event") {
                           return (
-                            <li key={`event-${index}`} className="relative pb-6">
-                              <span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-primary" />
-                              <p className="text-sm font-medium">{item.label}</p>
-                              <p className="text-xs text-muted-foreground">
+                            <li
+                              key={`event-${index}`}
+                              className="relative pb-6"
+                            >
+                              <span className="bg-primary absolute top-1 -left-[21px] size-2.5 rounded-full" />
+                              <p className="text-sm font-medium">
+                                {item.label}
+                              </p>
+                              <p className="text-muted-foreground text-xs">
                                 {formatDateTime(item.occurredAt, timezone)}
                               </p>
                               {item.detail && (
-                                <p className="mt-1 text-xs text-muted-foreground">
+                                <p className="text-muted-foreground mt-1 text-xs">
                                   {item.detail}
                                 </p>
                               )}
-                              <p className="mt-0.5 text-xs text-muted-foreground/80">
-                                Acumulado: {formatMinutes(item.trackedMinutesAfter)}
+                              <p className="text-muted-foreground/80 mt-0.5 text-xs">
+                                Acumulado:{" "}
+                                {formatMinutes(item.trackedMinutesAfter)}
                               </p>
                             </li>
                           );
@@ -381,23 +345,23 @@ export function TaskDetailDialog({
 
                         return (
                           <li key={`period-${index}`} className="relative pb-6">
-                            <span className="absolute -left-[21px] top-1 size-2.5 rounded-full border-2 border-primary bg-background" />
+                            <span className="border-primary bg-background absolute top-1 -left-[21px] size-2.5 rounded-full border-2" />
                             <p className="text-sm font-medium">
                               Em andamento
                               {item.isLive && (
-                                <span className="ml-2 text-xs font-normal text-primary">
+                                <span className="text-primary ml-2 text-xs font-normal">
                                   (agora)
                                 </span>
                               )}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-muted-foreground text-xs">
                               {formatDateTime(item.startedAt, timezone)}
                               {" → "}
                               {item.endedAt
                                 ? formatDateTime(item.endedAt, timezone)
                                 : "em curso"}
                             </p>
-                            <p className="mt-1 text-xs font-medium text-foreground/90">
+                            <p className="text-foreground/90 mt-1 text-xs font-medium">
                               {formatMinutes(item.minutes)} contabilizados
                             </p>
                           </li>
@@ -406,38 +370,12 @@ export function TaskDetailDialog({
                     </ol>
                   </CardContent>
                 </Card>
-
-                <Card className="border-border/60 py-4 shadow-none">
-                  <CardHeader className="px-4 pb-3">
-                    <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                      <MessageSquare className="size-4 text-muted-foreground" />
-                      Mensagens WhatsApp
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="px-4">
-                    {detail.messages.length === 0 ? (
-                      <p className="py-8 text-center text-sm text-muted-foreground">
-                        Nenhuma mensagem vinculada ainda.
-                      </p>
-                    ) : (
-                      <div className="space-y-3">
-                        {detail.messages.map((message) => (
-                          <MessageBubble
-                            key={message.id}
-                            message={message}
-                            timezone={timezone}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
               </div>
             </>
           )}
         </div>
 
-        <DialogFooter className="border-t bg-muted/20 px-6 py-4 sm:justify-between">
+        <DialogFooter className="bg-muted/20 border-t px-6 py-4 sm:justify-between">
           <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
             <div>
               <dt className="text-muted-foreground">Primeiro início</dt>
@@ -449,10 +387,7 @@ export function TaskDetailDialog({
               <dt className="text-muted-foreground">Término</dt>
               <dd className="table-time font-medium">
                 {(detail?.endedAt ?? task.endedAt)
-                  ? formatDateTime(
-                      (detail?.endedAt ?? task.endedAt)!,
-                      timezone,
-                    )
+                  ? formatDateTime((detail?.endedAt ?? task.endedAt)!, timezone)
                   : "—"}
               </dd>
             </div>
@@ -460,7 +395,7 @@ export function TaskDetailDialog({
 
           <div className="flex flex-wrap items-center gap-2 sm:justify-end">
             {deleteConfirm && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Confirmar exclusão?
               </span>
             )}

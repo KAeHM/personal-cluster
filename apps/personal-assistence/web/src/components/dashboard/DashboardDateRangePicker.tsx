@@ -42,8 +42,7 @@ export function DashboardDateRangePicker({
     return filtersToCalendarRange(value, timezone);
   }, [pendingRange, value, timezone]);
 
-  const activePreset =
-    value.period !== "custom" ? value.period : null;
+  const activePreset = value.period !== "custom" ? value.period : null;
 
   const handlePreset = (period: DashboardPeriod) => {
     setPendingRange(undefined);
@@ -79,7 +78,7 @@ export function DashboardDateRangePicker({
             !label && "text-muted-foreground",
           )}
         >
-          <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
+          <CalendarIcon className="text-muted-foreground size-4 shrink-0" />
           <span className="truncate">{label}</span>
         </Button>
       </PopoverTrigger>
@@ -90,8 +89,8 @@ export function DashboardDateRangePicker({
         sideOffset={8}
       >
         <div className="flex flex-col sm:flex-row">
-          <div className="flex flex-col gap-1 border-b border-border p-2 sm:border-r sm:border-b-0">
-            <p className="px-2 py-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          <div className="border-border flex flex-col gap-1 border-b p-2 sm:border-r sm:border-b-0">
+            <p className="text-muted-foreground px-2 py-1 text-xs font-medium tracking-wide uppercase">
               Atalhos
             </p>
             {PERIOD_PRESETS.map((preset) => (

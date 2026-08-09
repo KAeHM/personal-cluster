@@ -8,10 +8,7 @@ export function formatTimeInTimezone(date: Date, timezone: string): string {
   }).format(date);
 }
 
-export function parseDateTimeInTimezone(
-  input: string,
-  timezone: string,
-): Date {
+export function parseDateTimeInTimezone(input: string, timezone: string): Date {
   const parsed = new TZDate(input, timezone);
   if (Number.isNaN(parsed.getTime())) {
     throw new Error(`Data/hora inválida: ${input}`);

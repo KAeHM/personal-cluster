@@ -113,7 +113,7 @@ export function ManualTimeEntryDialog({
           <div className="space-y-2">
             <label
               htmlFor="manual-description"
-              className="text-sm font-medium leading-none"
+              className="text-sm leading-none font-medium"
             >
               Descrição
             </label>
@@ -130,7 +130,7 @@ export function ManualTimeEntryDialog({
           <div className="space-y-2">
             <label
               htmlFor="manual-context"
-              className="text-sm font-medium leading-none"
+              className="text-sm leading-none font-medium"
             >
               Contexto
             </label>
@@ -144,7 +144,7 @@ export function ManualTimeEntryDialog({
           <div className="space-y-2">
             <label
               htmlFor="manual-started-at"
-              className="text-sm font-medium leading-none"
+              className="text-sm leading-none font-medium"
             >
               Início
             </label>
@@ -161,7 +161,7 @@ export function ManualTimeEntryDialog({
           <div className="space-y-2">
             <label
               htmlFor="manual-duration"
-              className="text-sm font-medium leading-none"
+              className="text-sm leading-none font-medium"
             >
               Duração (minutos)
             </label>
@@ -180,9 +180,9 @@ export function ManualTimeEntryDialog({
           </div>
 
           {endPreview && (
-            <p className="rounded-lg bg-muted/60 px-3 py-2 text-sm text-muted-foreground">
+            <p className="bg-muted/60 text-muted-foreground rounded-lg px-3 py-2 text-sm">
               Término calculado:{" "}
-              <span className="font-medium text-foreground">{endPreview}</span>
+              <span className="text-foreground font-medium">{endPreview}</span>
               {Number(durationMinutes) > 0 && (
                 <span className="ml-1">
                   ({formatMinutes(Math.round(Number(durationMinutes)))})
@@ -192,7 +192,7 @@ export function ManualTimeEntryDialog({
           )}
 
           {error && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-destructive text-sm" role="alert">
               {error}
             </p>
           )}
@@ -207,11 +207,7 @@ export function ManualTimeEntryDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                "Salvar"
-              )}
+              {loading ? <Loader2 className="size-4 animate-spin" /> : "Salvar"}
             </Button>
           </DialogFooter>
         </form>

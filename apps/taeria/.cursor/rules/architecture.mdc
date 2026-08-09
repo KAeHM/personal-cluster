@@ -1,0 +1,26 @@
+---
+description: DDD-lite, camadas e direção de dependências
+globs: src/**/*
+alwaysApply: false
+---
+
+# Architecture
+
+## Layers per module (`src/modules/<feature>/`)
+
+- `domain/` — entities, ports (interfaces), `errors.ts`. No Zod, Supabase, `next/*`.
+- `application/` — use cases, Zod schemas, guards. Imports only `domain`.
+- `infrastructure/` — Supabase adapters, auth provider, factories. Implements ports.
+- `presentation/` — Server Actions (`"use server"`), UI-specific types.
+
+## `src/common/`
+
+Shared non-domain infra: `adapters/db`, `adapters/http`, `adapters/logger`, `errors/`, UI.
+
+## Seams (factories)
+
+`infrastructure/*.factory.ts` returns the default adapter. Application calls factories or use cases that call factories — never import Supabase SDK in use cases.
+
+## Reference module
+
+Copy patterns from `src/modules/users/` (CRUD + dual entry). Read `src/modules/users/README.md`.

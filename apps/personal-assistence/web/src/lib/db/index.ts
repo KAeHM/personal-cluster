@@ -5,10 +5,6 @@ import * as schema from "./schema";
 
 type Database = PostgresJsDatabase<typeof schema>;
 
-declare global {
-  var __db: Database | undefined;
-}
-
 let dbInstance: Database | undefined;
 
 function createDb(): Database {
@@ -23,19 +19,8 @@ function createDb(): Database {
 }
 
 export function getDb(): Database {
-  if (dbInstance) {
-    return dbInstance;
-  }
-
-  if (globalThis.__db) {
-    dbInstance = globalThis.__db;
-    return dbInstance;
-  }
-
-  dbInstance = createDb();
-
-  if (process.env.NODE_ENV !== "production") {
-    globalThis.__db = dbInstance;
+  if (!dbInstance) {
+    dbInstance = createDb();
   }
 
   return dbInstance;

@@ -31,7 +31,9 @@ type DashboardContentProps = {
   timezone: string;
 };
 
-async function fetchDashboard(filters: DashboardFilters): Promise<DashboardData> {
+async function fetchDashboard(
+  filters: DashboardFilters,
+): Promise<DashboardData> {
   const response = await fetch(
     `/api/dashboard${buildDashboardQueryString(filters)}`,
     { cache: "no-store" },
@@ -162,16 +164,16 @@ export function DashboardContent({
     <div className="mx-auto max-w-5xl space-y-8 p-6 md:p-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Visão consolidada do seu timesheet
             {isRefreshing && (
-              <span className="ml-2 inline-flex items-center gap-1 text-primary">
+              <span className="text-primary ml-2 inline-flex items-center gap-1">
                 <Loader2 className="size-3 animate-spin" />
                 Atualizando…
               </span>
             )}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             {filtersSummary(filters, timezone, contextLabels)}
           </p>
         </div>
@@ -179,7 +181,7 @@ export function DashboardContent({
       </div>
 
       {error && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-destructive text-sm" role="alert">
           {error}
         </p>
       )}
@@ -201,16 +203,18 @@ export function DashboardContent({
 
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-muted-foreground text-sm font-medium tracking-wider uppercase">
             Tarefas
           </h2>
           <div className="flex flex-wrap items-center gap-2">
-            <StartTaskDialog onTaskChanged={() => void refresh(filters, true)} />
+            <StartTaskDialog
+              onTaskChanged={() => void refresh(filters, true)}
+            />
             <ManualTimeEntryDialog
               timezone={timezone}
               onTaskChanged={() => void refresh(filters, true)}
             />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               {data.tasks.total}{" "}
               {data.tasks.total === 1 ? "registro" : "registros"}
             </span>

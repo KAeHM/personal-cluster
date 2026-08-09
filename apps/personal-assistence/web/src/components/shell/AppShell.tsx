@@ -18,11 +18,11 @@ type AppShellProps = {
 export function AppShell({ user, children }: AppShellProps) {
   return (
     <ShellProvider user={user}>
-      <div className="flex h-screen flex-col overflow-hidden bg-background">
+      <div className="bg-background flex h-screen flex-col overflow-hidden">
         <AppNavbar />
         <Suspense
           fallback={
-            <div className="flex h-10 items-center justify-end border-b border-border/60 bg-card px-3">
+            <div className="border-border/60 bg-card flex h-10 items-center justify-end border-b px-3">
               <Skeleton className="size-7 rounded-md" />
             </div>
           }

@@ -1,18 +1,13 @@
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import {
-  groupAliases,
-  pendingGroupClarifications,
-  workGroups,
-} from "@/lib/db/schema";
+import { groupAliases, workGroups } from "@/lib/db/schema";
 import type { WorkGroup } from "@/lib/db/schema";
 import { formatGroupLabel, normalizeGroupKey } from "@/lib/groups/normalize";
-import { areGroupKeysSimilar } from "@/lib/groups/similarity";
 
-const PENDING_TTL_HOURS = 24;
-
-export async function listWorkGroupsForUser(userId: string): Promise<WorkGroup[]> {
+export async function listWorkGroupsForUser(
+  userId: string,
+): Promise<WorkGroup[]> {
   return db.query.workGroups.findMany({
     where: eq(workGroups.userId, userId),
     orderBy: [desc(workGroups.lastUsedAt), desc(workGroups.usageCount)],
@@ -45,39 +40,6 @@ async function findGroupByNormalizedKey(
     .limit(1);
 
   return aliasMatch[0]?.group ?? null;
-}
-
-async function findSimilarGroup(
-  userId: string,
-  suggestedNormalized: string,
-  suggestedLabel: string,
-): Promise<WorkGroup | null> {
-  const groups = await listWorkGroupsForUser(userId);
-
-  for (const group of groups) {
-    if (
-      areGroupKeysSimilar(suggestedNormalized, group.normalizedKey) ||
-      areGroupKeysSimilar(suggestedLabel, group.label)
-    ) {
-      if (group.normalizedKey !== suggestedNormalized) {
-        return group;
-      }
-    }
-
-    const aliases = await db.query.groupAliases.findMany({
-      where: eq(groupAliases.groupId, group.id),
-    });
-
-    for (const alias of aliases) {
-      if (areGroupKeysSimilar(suggestedNormalized, alias.aliasNormalized)) {
-        if (alias.aliasNormalized !== suggestedNormalized) {
-          return group;
-        }
-      }
-    }
-  }
-
-  return null;
 }
 
 export async function getWorkGroupForUser(
@@ -136,39 +98,6 @@ export async function touchWorkGroup(groupId: string): Promise<void> {
     .where(eq(workGroups.id, groupId));
 }
 
-export async function addGroupAlias(
-  groupId: string,
-  aliasLabel: string,
-): Promise<void> {
-  const aliasNormalized = normalizeGroupKey(aliasLabel);
-  if (!aliasNormalized) return;
-
-  await db
-    .insert(groupAliases)
-    .values({
-      groupId,
-      aliasNormalized,
-      aliasLabel: formatGroupLabel(aliasLabel),
-    })
-    .onConflictDoNothing();
-}
-
-export type ResolveGroupInput = {
-  userId: string;
-  groupId?: string;
-  grupoSugerido?: string;
-};
-
-export type ResolveGroupResult =
-  | { status: "resolved"; groupId: string }
-  | {
-      status: "needs_clarification";
-      candidateGroup: WorkGroup;
-      suggestedLabel: string;
-      suggestedNormalized: string;
-    }
-  | { status: "none" };
-
 export async function listWorkGroupsWithAliases(userId: string) {
   const groups = await db.query.workGroups.findMany({
     where: eq(workGroups.userId, userId),
@@ -186,120 +115,4 @@ export async function listWorkGroupsWithAliases(userId: string) {
       (alias) => alias.aliasLabel ?? alias.aliasNormalized,
     ),
   }));
-}
-
-export async function resolveGroupForTask(
-  input: ResolveGroupInput,
-): Promise<ResolveGroupResult> {
-  const { userId, groupId, grupoSugerido } = input;
-
-  if (groupId) {
-    const group = await getWorkGroupForUser(userId, groupId);
-    if (!group) {
-      throw new Error("Grupo não encontrado");
-    }
-
-    if (grupoSugerido?.trim()) {
-      const suggestedLabel = formatGroupLabel(grupoSugerido);
-      const suggestedNormalized = normalizeGroupKey(grupoSugerido);
-
-      if (suggestedNormalized && suggestedNormalized !== group.normalizedKey) {
-        if (
-          areGroupKeysSimilar(suggestedNormalized, group.normalizedKey) ||
-          areGroupKeysSimilar(suggestedLabel, group.label)
-        ) {
-          return {
-            status: "needs_clarification",
-            candidateGroup: group,
-            suggestedLabel,
-            suggestedNormalized,
-          };
-        }
-
-        const created = await createWorkGroup(userId, suggestedLabel);
-        return { status: "resolved", groupId: created.id };
-      }
-    }
-
-    return { status: "resolved", groupId: group.id };
-  }
-
-  if (!grupoSugerido?.trim()) {
-    return { status: "none" };
-  }
-
-  const suggestedLabel = formatGroupLabel(grupoSugerido);
-  const suggestedNormalized = normalizeGroupKey(grupoSugerido);
-
-  if (!suggestedNormalized) {
-    return { status: "none" };
-  }
-
-  const exact = await findGroupByNormalizedKey(userId, suggestedNormalized);
-  if (exact) {
-    return { status: "resolved", groupId: exact.id };
-  }
-
-  const similar = await findSimilarGroup(
-    userId,
-    suggestedNormalized,
-    suggestedLabel,
-  );
-
-  if (similar) {
-    return {
-      status: "needs_clarification",
-      candidateGroup: similar,
-      suggestedLabel,
-      suggestedNormalized,
-    };
-  }
-
-  const created = await createWorkGroup(userId, suggestedLabel);
-  return { status: "resolved", groupId: created.id };
-}
-
-export async function savePendingGroupClarification(input: {
-  userId: string;
-  suggestedLabel: string;
-  suggestedNormalized: string;
-  candidateGroupId: string;
-  taskDescription: string;
-  estimatedMinutes?: number;
-}): Promise<void> {
-  const expiresAt = new Date(Date.now() + PENDING_TTL_HOURS * 60 * 60 * 1000);
-
-  await db
-    .delete(pendingGroupClarifications)
-    .where(eq(pendingGroupClarifications.userId, input.userId));
-
-  await db.insert(pendingGroupClarifications).values({
-    userId: input.userId,
-    suggestedLabel: input.suggestedLabel,
-    suggestedNormalized: input.suggestedNormalized,
-    candidateGroupId: input.candidateGroupId,
-    taskDescription: input.taskDescription,
-    estimatedMinutes: input.estimatedMinutes,
-    expiresAt,
-  });
-}
-
-export async function getActivePendingClarification(userId: string) {
-  const now = new Date();
-
-  const pending = await db.query.pendingGroupClarifications.findFirst({
-    where: and(
-      eq(pendingGroupClarifications.userId, userId),
-      gt(pendingGroupClarifications.expiresAt, now),
-    ),
-    with: { candidateGroup: true },
-  });
-
-  return pending ?? null;
-}
-
-export async function clearPendingClarification(userId: string): Promise<void> {
-  await db
-    .delete(pendingGroupClarifications)
-    .where(eq(pendingGroupClarifications.userId, userId));
 }

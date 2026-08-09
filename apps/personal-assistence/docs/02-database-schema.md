@@ -238,6 +238,30 @@ export default defineConfig({
 
 ---
 
+## Finanças (caixinhas) — migration `0009_finances`
+
+| Tabela | Descrição |
+|--------|-----------|
+| `finance_boxes` | Caixinhas do usuário (perfil, meta, prioridade) |
+| `finance_movements` | Ledger de entradas e saídas por caixinha |
+| `finance_transfers` | Transferências entre caixinhas (par de movimentações) |
+| `finance_categories` | Categorias opcionais para movimentações |
+
+Enums: `finance_box_profile`, `finance_movement_type`. Valores monetários em centavos (`integer`).
+
+### Alocação (migration `0010_finance_allocation`)
+
+| Tabela | Descrição |
+|--------|-----------|
+| `finance_income_sources` | Fontes de renda (fixa/variável) |
+| `finance_user_settings` | Renda fixa mensal do usuário |
+| `finance_allocations` | Evento de distribuição de renda |
+| `finance_allocation_items` | Itens da alocação por caixinha |
+
+Colunas adicionadas em `finance_movements`: `allocation_id`, `income_source_id`.
+
+---
+
 ## NextAuth — tabelas adicionais
 
 NextAuth v5 com adapter Drizzle requer tabelas de sessão. Serão adicionadas via `@auth/drizzle-adapter` na implementação:

@@ -3,22 +3,16 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { tasks } from "@/lib/db/schema";
 import { getTaskDetail } from "@/lib/tasks/task-detail";
-import type { TaskAction, TaskDetailResponse } from "@/lib/tasks/task-detail-types";
+import type {
+  TaskAction,
+  TaskDetailResponse,
+} from "@/lib/tasks/task-detail-types";
 import {
   finishTask,
   pauseTask,
   resumeTask,
-} from "@/lib/tasks/queries";
-
-export class TaskActionError extends Error {
-  constructor(
-    message: string,
-    readonly status: 400 | 404 = 400,
-  ) {
-    super(message);
-    this.name = "TaskActionError";
-  }
-}
+} from "@/modules/tasks/application/queries";
+import { TASK_ERRORS } from "@/modules/tasks/domain/errors";
 
 export async function deleteTask(
   userId: string,
@@ -30,7 +24,7 @@ export async function deleteTask(
   });
 
   if (!task) {
-    throw new TaskActionError("Tarefa não encontrada", 404);
+    throw TASK_ERRORS.create("NOT_FOUND");
   }
 
   await db.delete(tasks).where(eq(tasks.id, taskId));
@@ -47,46 +41,37 @@ export async function applyTaskAction(
   });
 
   if (!task) {
-    throw new TaskActionError("Tarefa não encontrada", 404);
+    throw TASK_ERRORS.create("NOT_FOUND");
   }
 
   switch (action) {
     case "pause": {
       if (task.status === "closed") {
-        throw new TaskActionError("Tarefa já finalizada");
+        throw TASK_ERRORS.create("ALREADY_CLOSED");
       }
       if (task.status === "paused") {
-        throw new TaskActionError("Tarefa já está pausada");
+        throw TASK_ERRORS.create("ALREADY_PAUSED");
       }
-      await pauseTask(task, now, { note: "Pausada pelo dashboard" });
+      await pauseTask(task, now);
       break;
     }
     case "resume": {
-      if (task.status === "closed") {
-        throw new TaskActionError("Tarefa já finalizada");
-      }
-      if (task.status === "active") {
-        throw new TaskActionError("Tarefa já está em andamento");
-      }
       await resumeTask(userId, taskId, now);
       break;
     }
     case "finish": {
-      if (task.status === "closed") {
-        throw new TaskActionError("Tarefa já finalizada");
-      }
       await finishTask(userId, taskId, now);
       break;
     }
     default: {
-      const _exhaustive: never = action;
-      throw new TaskActionError(`Ação inválida: ${_exhaustive}`);
+      throw TASK_ERRORS.create("INVALID_ACTION");
     }
   }
 
-  const detail = await getTaskDetail(userId, taskId, now);
+  const detail = await getTaskDetail(userId, taskId);
+
   if (!detail) {
-    throw new TaskActionError("Tarefa não encontrada", 404);
+    throw TASK_ERRORS.create("NOT_FOUND");
   }
 
   return detail;

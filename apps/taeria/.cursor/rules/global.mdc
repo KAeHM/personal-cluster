@@ -1,0 +1,17 @@
+---
+description: Regras globais do Taeria (stack, escopo, commits)
+alwaysApply: true
+---
+
+# Global
+
+- Produto: **Taeria** — leia [`PROJECT.md`](../../PROJECT.md) antes de features.
+- Stack: Next 16, Supabase Cloud, DDD-lite + Ports & Adapters.
+- Dependency flow: `presentation → application → domain ← infrastructure`.
+- Use cases hold business rules; Route Handlers and Server Actions only orchestrate.
+- Minimize diff scope — no drive-by refactors or unrequested features.
+- Match existing naming, types, and factory patterns in sibling modules.
+- Commits: Conventional Commits (`feat:`, `fix:`, `chore:`).
+- Quality gate: `make check` before PR; never push directly to `main` (branch protection).
+- Deep context: `AGENTS.md`, `docs/agents/`, module READMEs under `src/modules/*/`.
+- If `PROJECT.md` exists (derived product), read it for business scope before feature work.

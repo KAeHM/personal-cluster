@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { auth } from "@/auth";
-import { getDbUserFromSession } from "@/lib/auth/get-db-user";
+import { errorResponse } from "@/common/adapters/http/error-response";
+import { requireSessionUser } from "@/common/adapters/http/require-session-user";
+import { withRouteMetrics } from "@/common/adapters/observability/metrics";
+import { COMMON_ERRORS } from "@/common/errors";
 import { parseDateTimeInTimezone } from "@/lib/format/timezone";
 import { prepareTaskInput } from "@/lib/tasks/prepare-task-input";
 import {
@@ -10,7 +11,9 @@ import {
   createTaskFromPendingDuplicate,
   resumeTask,
   startTask,
-} from "@/lib/tasks/queries";
+} from "@/modules/tasks/application/queries";
+
+const ROUTE = "/api/tasks";
 
 const manualSchema = z.object({
   type: z.literal("manual"),
@@ -46,156 +49,143 @@ const bodySchema = z.discriminatedUnion("type", [
   startConfirmSchema,
 ]);
 
-async function getAuthorizedUser() {
-  const session = await auth();
-
-  if (!session?.user) {
-    return {
-      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
-    };
-  }
-
-  const user = await getDbUserFromSession(session);
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { error: "Usuário não encontrado" },
-        { status: 404 },
-      ),
-    };
-  }
-
-  return { user };
-}
-
 export async function POST(request: Request) {
-  const authResult = await getAuthorizedUser();
-  if ("error" in authResult) return authResult.error;
+  return withRouteMetrics("POST", ROUTE, async () => {
+    try {
+      const user = await requireSessionUser();
 
-  const { user } = authResult;
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
-  }
-
-  const parsed = bodySchema.safeParse(body);
-  if (!parsed.success) {
-    const message = parsed.error.issues[0]?.message ?? "Dados inválidos";
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
-
-  const payload = parsed.data;
-
-  try {
-    if (payload.type === "manual") {
-      let startedAt: Date;
-      try {
-        startedAt = parseDateTimeInTimezone(payload.startedAt, user.timezone);
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Data/hora inválida";
-        return NextResponse.json({ error: message }, { status: 400 });
+      const body = await request.json().catch(() => null);
+      const parsed = bodySchema.safeParse(body);
+      if (!parsed.success) {
+        const message = parsed.error.issues[0]?.message ?? "Dados inválidos";
+        throw COMMON_ERRORS.create("VALIDATION", { messageOverride: message });
       }
 
-      const now = new Date();
-      const endedAt = new Date(
-        startedAt.getTime() + payload.durationMinutes * 60_000,
-      );
+      const payload = parsed.data;
 
-      if (startedAt.getTime() > now.getTime()) {
-        return NextResponse.json(
-          { error: "Data de início não pode ser no futuro" },
-          { status: 400 },
+      if (payload.type === "manual") {
+        let startedAt: Date;
+        try {
+          startedAt = parseDateTimeInTimezone(payload.startedAt, user.timezone);
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Data/hora inválida";
+          throw COMMON_ERRORS.create("VALIDATION", {
+            messageOverride: message,
+          });
+        }
+
+        const now = new Date();
+        const endedAt = new Date(
+          startedAt.getTime() + payload.durationMinutes * 60_000,
         );
-      }
 
-      if (endedAt.getTime() > now.getTime()) {
-        return NextResponse.json(
-          { error: "Horário de término não pode ser no futuro" },
-          { status: 400 },
+        if (startedAt.getTime() > now.getTime()) {
+          throw COMMON_ERRORS.create("VALIDATION", {
+            messageOverride: "Data de início não pode ser no futuro",
+          });
+        }
+
+        if (endedAt.getTime() > now.getTime()) {
+          throw COMMON_ERRORS.create("VALIDATION", {
+            messageOverride: "Horário de término não pode ser no futuro",
+          });
+        }
+
+        const prepared = await prepareTaskInput(
+          user.id,
+          payload.description,
+          payload.groupId,
         );
-      }
 
-      const prepared = await prepareTaskInput(
-        user.id,
-        payload.description,
-        payload.groupId,
-      );
+        const task = await createManualTimeEntry({
+          userId: user.id,
+          description: prepared.description,
+          startedAt,
+          durationMinutes: payload.durationMinutes,
+          groupId: prepared.groupId,
+        });
 
-      const task = await createManualTimeEntry({
-        userId: user.id,
-        description: prepared.description,
-        startedAt,
-        durationMinutes: payload.durationMinutes,
-        groupId: prepared.groupId,
-      });
-
-      return NextResponse.json({
-        status: "created",
-        task: {
-          id: task.id,
-          description: task.description,
-          startedAt: task.startedAt.toISOString(),
-          endedAt: task.endedAt?.toISOString() ?? null,
-          durationMinutes: task.durationMinutes,
-        },
-      });
-    }
-
-    if (payload.type === "start") {
-      const prepared = await prepareTaskInput(
-        user.id,
-        payload.description,
-        payload.groupId,
-      );
-
-      const startResult = await startTask({
-        userId: user.id,
-        description: prepared.description,
-        estimatedMinutes: payload.estimatedMinutes,
-        groupId: prepared.groupId,
-      });
-
-      if (startResult.status === "needs_duplicate_clarification") {
-        return NextResponse.json({
-          status: "needs_duplicate_clarification",
-          pausedTask: {
-            id: startResult.pausedTask.id,
-            description: startResult.pausedTask.description,
+        return Response.json({
+          status: "created",
+          task: {
+            id: task.id,
+            description: task.description,
+            startedAt: task.startedAt.toISOString(),
+            endedAt: task.endedAt?.toISOString() ?? null,
+            durationMinutes: task.durationMinutes,
           },
-          newDescription: startResult.newDescription,
         });
       }
 
-      return NextResponse.json({
-        status: "started",
-        task: {
-          id: startResult.task.id,
-          description: startResult.task.description,
-          startedAt: startResult.task.startedAt.toISOString(),
-        },
-        pausedDescription: startResult.pausedDescription,
-      });
-    }
+      if (payload.type === "start") {
+        const prepared = await prepareTaskInput(
+          user.id,
+          payload.description,
+          payload.groupId,
+        );
 
-    const prepared = await prepareTaskInput(
-      user.id,
-      payload.description,
-      payload.groupId,
-    );
+        const startResult = await startTask({
+          userId: user.id,
+          description: prepared.description,
+          estimatedMinutes: payload.estimatedMinutes,
+          groupId: prepared.groupId,
+        });
 
-    if (payload.action === "resume") {
-      const { task, pausedDescription } = await resumeTask(
+        if (startResult.status === "needs_duplicate_clarification") {
+          return Response.json({
+            status: "needs_duplicate_clarification",
+            pausedTask: {
+              id: startResult.pausedTask.id,
+              description: startResult.pausedTask.description,
+            },
+            newDescription: startResult.newDescription,
+          });
+        }
+
+        return Response.json({
+          status: "started",
+          task: {
+            id: startResult.task.id,
+            description: startResult.task.description,
+            startedAt: startResult.task.startedAt.toISOString(),
+          },
+          pausedDescription: startResult.pausedDescription,
+        });
+      }
+
+      const prepared = await prepareTaskInput(
         user.id,
-        payload.pausedTaskId,
+        payload.description,
+        payload.groupId,
       );
 
-      return NextResponse.json({
-        status: "resumed",
+      if (payload.action === "resume") {
+        const { task, pausedDescription } = await resumeTask(
+          user.id,
+          payload.pausedTaskId,
+        );
+
+        return Response.json({
+          status: "resumed",
+          task: {
+            id: task.id,
+            description: task.description,
+            startedAt: task.startedAt.toISOString(),
+          },
+          pausedDescription,
+        });
+      }
+
+      const { task, pausedDescription } = await createTaskFromPendingDuplicate(
+        user.id,
+        prepared.description,
+        payload.estimatedMinutes,
+        prepared.groupId,
+      );
+
+      return Response.json({
+        status: "started",
         task: {
           id: task.id,
           description: task.description,
@@ -203,27 +193,8 @@ export async function POST(request: Request) {
         },
         pausedDescription,
       });
+    } catch (error) {
+      return errorResponse(error, { route: ROUTE, method: "POST" });
     }
-
-    const { task, pausedDescription } = await createTaskFromPendingDuplicate(
-      user.id,
-      prepared.description,
-      payload.estimatedMinutes,
-      prepared.groupId,
-    );
-
-    return NextResponse.json({
-      status: "started",
-      task: {
-        id: task.id,
-        description: task.description,
-        startedAt: task.startedAt.toISOString(),
-      },
-      pausedDescription,
-    });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Erro ao processar tarefa";
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
+  });
 }

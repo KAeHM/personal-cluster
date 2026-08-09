@@ -1,0 +1,10 @@
+.next
+node_modules
+package-lock.json
+*.tsbuildinfo
+next-env.d.ts
+coverage
+playwright-report
+test-results
+# Gerado automaticamente pelo release-please (formato nao bate com Prettier).
+CHANGELOG.md

@@ -1,0 +1,14 @@
+---
+description: Contexto do produto (ative após derivar o template — renomeie para project.mdc)
+alwaysApply: true
+---
+
+# Product context
+
+This repository is a **real product**, not the boilerplate template.
+
+- Product name: **[Nome do Produto]**
+- Business scope and out-of-scope: read [`PROJECT.md`](../../PROJECT.md) first for feature work.
+- Code architecture: still follow [`AGENTS.md`](../../AGENTS.md) and other rules in `.cursor/rules/`.
+- Do not add generic boilerplate/demo features unless explicitly requested.
+- Do not refactor unrelated modules when implementing a scoped task.

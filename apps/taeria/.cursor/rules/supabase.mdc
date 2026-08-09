@@ -1,0 +1,18 @@
+---
+description: Supabase Cloud — migrations, clients, repositórios e RLS
+globs: "{supabase/**,src/common/adapters/supabase/**,src/**/adapters/supabase/**}"
+alwaysApply: false
+---
+
+# Supabase
+
+- Migrations em `supabase/migrations/*.sql` — criar com `supabase migration new <nome>`.
+- Projeto linkado ao **Supabase Cloud** (`supabase link`); aplicar com `db:push`.
+- Clients: `server.ts` (RSC/actions), `browser.ts` (client), `admin.ts` (service role, server only).
+- Repositories: implement domain port; map rows with `toDomain`; snake_case → camelCase.
+- Factory is the seam — `getUserRepository()` etc.
+- RLS obrigatório em tabelas `public` expostas ao client.
+- `role` de autorização em `app_metadata`, nunca `user_metadata`.
+- Realtime: `alter publication supabase_realtime add table <tabela>`.
+
+Commands: `db:push`, `db:seed`.

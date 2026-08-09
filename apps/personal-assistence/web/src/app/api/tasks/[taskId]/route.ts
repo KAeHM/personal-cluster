@@ -1,15 +1,15 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { auth } from "@/auth";
-import { getDbUserFromSession } from "@/lib/auth/get-db-user";
-import {
-  applyTaskAction,
-  deleteTask,
-  TaskActionError,
-} from "@/lib/tasks/task-actions";
+import { errorResponse } from "@/common/adapters/http/error-response";
+import { requireSessionUser } from "@/common/adapters/http/require-session-user";
+import { withRouteMetrics } from "@/common/adapters/observability/metrics";
+import { COMMON_ERRORS } from "@/common/errors";
+import { applyTaskAction, deleteTask } from "@/lib/tasks/task-actions";
 import { getTaskDetail } from "@/lib/tasks/task-detail";
 import type { TaskAction } from "@/lib/tasks/task-detail-types";
+import { TASK_ERRORS } from "@/modules/tasks/domain/errors";
+
+const ROUTE = "/api/tasks/[taskId]";
 
 type RouteContext = {
   params: Promise<{ taskId: string }>;
@@ -19,87 +19,61 @@ const patchBodySchema = z.object({
   action: z.enum(["pause", "resume", "finish"]),
 });
 
-async function getAuthorizedUser() {
-  const session = await auth();
-
-  if (!session?.user) {
-    return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-
-  const user = await getDbUserFromSession(session);
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { error: "Usuário não encontrado" },
-        { status: 404 },
-      ),
-    };
-  }
-
-  return { user };
-}
-
 export async function GET(_request: Request, context: RouteContext) {
-  const authResult = await getAuthorizedUser();
-  if ("error" in authResult) return authResult.error;
+  return withRouteMetrics("GET", ROUTE, async () => {
+    try {
+      const user = await requireSessionUser();
+      const { taskId } = await context.params;
+      const detail = await getTaskDetail(user.id, taskId);
 
-  const { taskId } = await context.params;
-  const detail = await getTaskDetail(authResult.user.id, taskId);
+      if (!detail) {
+        throw TASK_ERRORS.create("NOT_FOUND");
+      }
 
-  if (!detail) {
-    return NextResponse.json({ error: "Tarefa não encontrada" }, { status: 404 });
-  }
-
-  return NextResponse.json(detail);
+      return Response.json(detail);
+    } catch (error) {
+      return errorResponse(error, { route: ROUTE, method: "GET" });
+    }
+  });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const authResult = await getAuthorizedUser();
-  if ("error" in authResult) return authResult.error;
+  return withRouteMetrics("PATCH", ROUTE, async () => {
+    try {
+      const user = await requireSessionUser();
+      const { taskId } = await context.params;
 
-  const { taskId } = await context.params;
+      const body = await request.json().catch(() => null);
+      const parsed = patchBodySchema.safeParse(body);
+      if (!parsed.success) {
+        throw COMMON_ERRORS.create("VALIDATION", {
+          messageOverride: "Ação inválida",
+        });
+      }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
-  }
+      const detail = await applyTaskAction(
+        user.id,
+        taskId,
+        parsed.data.action as TaskAction,
+      );
 
-  const parsed = patchBodySchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Ação inválida" }, { status: 400 });
-  }
-
-  try {
-    const detail = await applyTaskAction(
-      authResult.user.id,
-      taskId,
-      parsed.data.action as TaskAction,
-    );
-    return NextResponse.json(detail);
-  } catch (error) {
-    if (error instanceof TaskActionError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+      return Response.json(detail);
+    } catch (error) {
+      return errorResponse(error, { route: ROUTE, method: "PATCH" });
     }
-    throw error;
-  }
+  });
 }
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const authResult = await getAuthorizedUser();
-  if ("error" in authResult) return authResult.error;
+  return withRouteMetrics("DELETE", ROUTE, async () => {
+    try {
+      const user = await requireSessionUser();
+      const { taskId } = await context.params;
 
-  const { taskId } = await context.params;
-
-  try {
-    await deleteTask(authResult.user.id, taskId);
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    if (error instanceof TaskActionError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+      await deleteTask(user.id, taskId);
+      return Response.json({ success: true });
+    } catch (error) {
+      return errorResponse(error, { route: ROUTE, method: "DELETE" });
     }
-    throw error;
-  }
+  });
 }

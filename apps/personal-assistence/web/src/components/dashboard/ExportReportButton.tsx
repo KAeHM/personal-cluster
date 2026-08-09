@@ -75,7 +75,7 @@ export function ExportReportButton({ filters }: ExportReportButtonProps) {
         Exportar PDF
       </Button>
       {error && (
-        <p className="text-xs text-destructive" role="alert">
+        <p className="text-destructive text-xs" role="alert">
           {error}
         </p>
       )}

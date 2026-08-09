@@ -8,9 +8,9 @@ type WorkGroupsPanelProps = {
 export function WorkGroupsPanel({ workGroups }: WorkGroupsPanelProps) {
   if (workGroups.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border/60 px-4 py-8 text-center text-sm text-muted-foreground">
+      <div className="border-border/60 text-muted-foreground rounded-lg border border-dashed px-4 py-8 text-center text-sm">
         Nenhum contexto registrado ainda. Contextos são criados automaticamente
-        quando você menciona clientes ou projetos no WhatsApp.
+        quando você associa clientes ou projetos às tarefas.
       </div>
     );
   }
@@ -20,21 +20,20 @@ export function WorkGroupsPanel({ workGroups }: WorkGroupsPanelProps) {
       {workGroups.map((group) => (
         <div
           key={group.id}
-          className="rounded-lg border border-border/60 px-4 py-3"
+          className="border-border/60 rounded-lg border px-4 py-3"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="font-medium">{group.label}</p>
-            <span className="text-xs text-muted-foreground">
-              {group.usageCount}{" "}
-              {group.usageCount === 1 ? "uso" : "usos"}
+            <span className="text-muted-foreground text-xs">
+              {group.usageCount} {group.usageCount === 1 ? "uso" : "usos"}
             </span>
           </div>
-          <p className="mt-1 font-mono text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-1 font-mono text-xs">
             {group.id.slice(0, 8)} · chave: {group.normalizedKey}
           </p>
           {group.aliases.length > 0 ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="text-xs text-muted-foreground">Aliases:</span>
+              <span className="text-muted-foreground text-xs">Aliases:</span>
               {group.aliases.map((alias) => (
                 <Badge key={alias} variant="secondary" className="text-xs">
                   {alias}
@@ -42,7 +41,7 @@ export function WorkGroupsPanel({ workGroups }: WorkGroupsPanelProps) {
               ))}
             </div>
           ) : (
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-xs">
               Sem aliases registrados
             </p>
           )}

@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WhatsApp Time Tracker",
-  description: "Apontamento de horas e gestão de tarefas via WhatsApp",
+  title: "Time Tracker",
+  description: "Apontamento de horas e gestão de tarefas",
 };
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col">
         <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>

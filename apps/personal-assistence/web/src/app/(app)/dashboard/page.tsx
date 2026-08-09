@@ -43,7 +43,9 @@ function DashboardLoading() {
   );
 }
 
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
   noStore();
 
   const shellUser = await getShellUser();
@@ -61,7 +63,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <DashboardOnboarding userName={shellUser.name} />
       )}
       <Suspense fallback={<DashboardLoading />}>
-        <DashboardContent initialData={initialData} timezone={shellUser.timezone} />
+        <DashboardContent
+          initialData={initialData}
+          timezone={shellUser.timezone}
+        />
       </Suspense>
     </>
   );

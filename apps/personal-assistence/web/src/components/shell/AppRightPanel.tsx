@@ -1,11 +1,10 @@
 "use client";
 
 import { Suspense } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 
 import { DashboardFiltersPanel } from "@/components/dashboard/DashboardFiltersPanel";
-import { LinkPhoneForm } from "@/components/dashboard/LinkPhoneForm";
 import { useShell } from "@/components/shell/shell-context";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -16,15 +15,14 @@ const PANEL_WIDTH = "w-80";
 
 export function AppRightPanel() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { rightPanel, closeRightPanel, user, hasPhone, setUserPhone } = useShell();
+  const { rightPanel, closeRightPanel, user } = useShell();
   const meta = getPageMeta(pathname);
   const isOpen = rightPanel !== null;
 
   return (
     <aside
       className={cn(
-        "flex shrink-0 flex-col overflow-hidden border-l border-border/60 bg-card",
+        "border-border/60 bg-card flex shrink-0 flex-col overflow-hidden border-l",
         "shell-transition transition-[width,border-color] duration-300 ease-in-out",
         isOpen ? PANEL_WIDTH : "w-0 border-transparent",
       )}
@@ -38,7 +36,7 @@ export function AppRightPanel() {
           isOpen ? "opacity-100 delay-75" : "pointer-events-none opacity-0",
         )}
       >
-        <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/60 px-4">
+        <div className="border-border/60 flex h-10 shrink-0 items-center justify-between border-b px-4">
           <h2 className="text-sm font-medium">
             {rightPanel === "filters"
               ? "Filtros"
@@ -60,7 +58,13 @@ export function AppRightPanel() {
 
         <div className="flex-1 overflow-y-auto p-4">
           {rightPanel === "filters" && pathname === "/dashboard" && (
-            <Suspense fallback={<p className="text-sm text-muted-foreground">Carregando filtros…</p>}>
+            <Suspense
+              fallback={
+                <p className="text-muted-foreground text-sm">
+                  Carregando filtros…
+                </p>
+              }
+            >
               <DashboardFiltersPanel timezone={user.timezone} />
             </Suspense>
           )}
@@ -68,10 +72,10 @@ export function AppRightPanel() {
           {rightPanel === "info" && (
             <div className="space-y-4 text-sm">
               <div className="space-y-2">
-                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
                   Sobre esta página
                 </p>
-                <p className="leading-relaxed text-muted-foreground">
+                <p className="text-muted-foreground leading-relaxed">
                   {meta.description}
                 </p>
               </div>
@@ -79,44 +83,20 @@ export function AppRightPanel() {
               <Separator />
 
               <div className="space-y-2">
-                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
                   Conta
                 </p>
                 <dl className="space-y-2 text-sm">
                   <div>
-                    <dt className="text-xs text-muted-foreground">Nome</dt>
+                    <dt className="text-muted-foreground text-xs">Nome</dt>
                     <dd className="font-medium">{user.name ?? "—"}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted-foreground">E-mail</dt>
+                    <dt className="text-muted-foreground text-xs">E-mail</dt>
                     <dd className="truncate">{user.email ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">WhatsApp</dt>
-                    <dd className="font-mono text-xs">
-                      {user.phone?.trim() || "—"}
-                    </dd>
                   </div>
                 </dl>
               </div>
-
-              {pathname === "/dashboard" && !hasPhone && (
-                <>
-                  <Separator />
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                      Vincular WhatsApp
-                    </p>
-                  <LinkPhoneForm
-                    showDescription={false}
-                    onLinked={(phone) => {
-                      setUserPhone(phone);
-                      router.refresh();
-                    }}
-                  />
-                  </div>
-                </>
-              )}
             </div>
           )}
         </div>

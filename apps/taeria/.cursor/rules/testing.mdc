@@ -1,0 +1,25 @@
+---
+description: Vitest unit, integração opcional, Playwright E2E
+globs: "{**/*.test.ts,tests/**,vitest*.ts,playwright.config.ts}"
+alwaysApply: false
+---
+
+# Testing
+
+## Unit (Vitest)
+
+- Co-locate `*.test.ts` near source; mock factories (`vi.mock` on `*.factory.ts`).
+- Coverage scope: `domain`, `application`, `common/errors`, `common/adapters/http` — threshold 90%.
+- Do not unit-test Supabase adapters — use E2E tests.
+
+## Integration
+
+- `tests/integration/` — placeholder; dev usa Supabase Cloud.
+- CI E2E sobe Supabase local efêmero automaticamente.
+
+## E2E
+
+- `tests/e2e/` + Playwright; `make test-e2e` after build + migrate + seed.
+- CI runs all layers on PRs only (not duplicated on CD push to main).
+
+Commands: `make test`, `make test-coverage`, `make check`.

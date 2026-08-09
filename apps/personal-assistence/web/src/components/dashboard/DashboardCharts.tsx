@@ -70,10 +70,10 @@ export function DashboardCharts({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-muted-foreground text-sm font-medium tracking-wider uppercase">
             Gráfico de tempo
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             {chart.unit === "hours"
               ? "Total de horas por dia"
               : "Minutos trabalhados por hora"}
@@ -107,7 +107,7 @@ export function DashboardCharts({
       </div>
 
       {!chart.hourGranularityAllowed && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Granularidade por hora disponível apenas para períodos de até{" "}
           {MAX_HOUR_GRANULARITY_DAYS} dias.
         </p>
@@ -116,7 +116,7 @@ export function DashboardCharts({
       {isLoading ? (
         <Skeleton className="h-[220px] w-full" />
       ) : series.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border/60 py-10 text-center text-sm text-muted-foreground">
+        <p className="border-border/60 text-muted-foreground rounded-lg border border-dashed py-10 text-center text-sm">
           Nenhum tempo registrado neste período.
         </p>
       ) : (
@@ -131,13 +131,7 @@ export function DashboardCharts({
             margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
           >
             <defs>
-              <linearGradient
-                id="chartAreaFade"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
+              <linearGradient id="chartAreaFade" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="0%"
                   stopColor="var(--color-value)"

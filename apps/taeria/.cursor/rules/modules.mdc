@@ -1,0 +1,29 @@
+---
+description: Criar ou alterar módulos de feature (use cases, ports, factories)
+globs: src/modules/**/*
+alwaysApply: false
+---
+
+# Feature modules
+
+## Adding a feature
+
+1. `domain/` — entity, repository port, `defineErrorCatalog` errors.
+2. `application/schemas/` — Zod (single source for Action + API).
+3. `application/use-cases/` — business logic; throw catalog errors; assume validated input.
+4. `infrastructure/adapters/supabase/` — repository with `toDomain`, factory.
+5. `presentation/actions/` — `"use server"` + separate `types.ts` for client state.
+6. Optional: `app/api/v1/<resource>/` — API key auth, same Zod + use cases.
+7. Export public API via `index.ts` (server/barrel); clients import actions directly.
+
+## Dual entry pattern
+
+```
+Server Action (session)  ─┐
+                          ├─► use case ─► port ─► adapter
+Route Handler (API key)  ─┘
+```
+
+## Tests
+
+Mock `*.factory.ts` in unit tests; see `src/modules/users/application/use-cases/*.test.ts`.

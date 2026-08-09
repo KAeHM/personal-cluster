@@ -36,7 +36,7 @@ export function AppToolbar() {
       : 0;
 
   return (
-    <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/60 bg-card px-3">
+    <div className="border-border/60 bg-card flex h-10 shrink-0 items-center justify-between border-b px-3">
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <Button
           type="button"
@@ -53,9 +53,15 @@ export function AppToolbar() {
           <Menu className="size-4" />
         </Button>
 
-        <div className="hidden h-4 w-px shrink-0 bg-border sm:block" aria-hidden />
+        <div
+          className="bg-border hidden h-4 w-px shrink-0 sm:block"
+          aria-hidden
+        />
 
-        <AppBreadcrumb items={breadcrumbs} className="hidden min-w-0 sm:block" />
+        <AppBreadcrumb
+          items={breadcrumbs}
+          className="hidden min-w-0 sm:block"
+        />
         <h1 className="truncate text-sm font-medium sm:hidden">{meta.title}</h1>
       </div>
 
@@ -88,7 +94,7 @@ export function AppToolbar() {
             >
               <Icon className="size-4" />
               {showFilterBadge && (
-                <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
+                <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full text-[10px] font-medium">
                   {activeFilterCount}
                 </span>
               )}

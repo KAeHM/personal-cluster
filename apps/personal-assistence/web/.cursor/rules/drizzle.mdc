@@ -1,0 +1,17 @@
+---
+description: Drizzle schema, migrations e repositórios
+globs: "{src/**/drizzle/**,drizzle/**,drizzle.config.ts,src/common/adapters/db/**}"
+alwaysApply: false
+---
+
+# Drizzle & Postgres
+
+- Schema per module: `modules/<m>/infrastructure/**/drizzle/schema.ts`.
+- Aggregated client: `src/common/adapters/db/drizzle/client.ts` (lazy singleton).
+- Repositories: implement domain port; map rows with `toDomain`; never leak `UserRow` to application.
+- Factory is the seam — `getUserRepository()` etc.
+- Cross-module schema imports: use relative paths in schema files (drizzle-kit alias limits).
+- After schema change: `make db-generate` then commit SQL under `drizzle/`.
+- Repositories accept optional `db` param for integration tests (default `getDb()`).
+
+Commands: `db:generate`, `db:migrate`, `db:seed`, `db:studio`.

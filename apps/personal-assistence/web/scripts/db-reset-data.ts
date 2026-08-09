@@ -29,13 +29,8 @@ if (!databaseUrl) {
 }
 
 const TABLES_TO_TRUNCATE = [
-  "task_message_links",
   "task_events",
-  "pending_finish_selections",
-  "pending_task_duplicate_clarifications",
-  "pending_group_clarifications",
   "group_aliases",
-  "message_logs",
   "tasks",
   "work_groups",
 ] as const;

@@ -1,23 +1,18 @@
-import { NextResponse } from "next/server";
-
-import { auth } from "@/auth";
-import { getDbUserFromSession } from "@/lib/auth/get-db-user";
+import { errorResponse } from "@/common/adapters/http/error-response";
+import { requireSessionUser } from "@/common/adapters/http/require-session-user";
+import { withRouteMetrics } from "@/common/adapters/observability/metrics";
 import { getContextsData } from "@/lib/contexts/queries";
 
+const ROUTE = "/api/contexts";
+
 export async function GET() {
-  const session = await auth();
-
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await getDbUserFromSession(session);
-
-  if (!user) {
-    return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
-  }
-
-  const data = await getContextsData(user.id);
-
-  return NextResponse.json(data);
+  return withRouteMetrics("GET", ROUTE, async () => {
+    try {
+      const user = await requireSessionUser();
+      const data = await getContextsData(user.id);
+      return Response.json(data);
+    } catch (error) {
+      return errorResponse(error, { route: ROUTE, method: "GET" });
+    }
+  });
 }

@@ -19,17 +19,20 @@ export function AppBreadcrumb({ items, className }: AppBreadcrumbProps) {
           const isLast = index === items.length - 1;
 
           return (
-            <li key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1">
+            <li
+              key={`${item.label}-${index}`}
+              className="flex min-w-0 items-center gap-1"
+            >
               {index > 0 && (
                 <ChevronRight
-                  className="size-3.5 shrink-0 text-muted-foreground/60"
+                  className="text-muted-foreground/60 size-3.5 shrink-0"
                   aria-hidden
                 />
               )}
               {item.href && !isLast ? (
                 <Link
                   href={item.href}
-                  className="truncate text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground truncate transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -37,7 +40,9 @@ export function AppBreadcrumb({ items, className }: AppBreadcrumbProps) {
                 <span
                   className={cn(
                     "truncate",
-                    isLast ? "font-medium text-foreground" : "text-muted-foreground",
+                    isLast
+                      ? "text-foreground font-medium"
+                      : "text-muted-foreground",
                   )}
                   aria-current={isLast ? "page" : undefined}
                 >

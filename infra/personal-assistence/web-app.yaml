@@ -57,12 +57,6 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: AI_DEBUG
-              value: "true"
-            - name: WHATSAPP_SELF_PHONE
-              value: "5511973650867"
-            - name: WHATSAPP_SELF_LID
-              value: "130644583665743"
             - name: NODE_ENV
               value: production
             - name: DATABASE_URL
@@ -77,30 +71,6 @@ spec:
                   key: AUTH_SECRET
             - name: AUTH_URL
               value: https://personal-assistence.tail412374.ts.net
-            - name: GOOGLE_GENERATIVE_AI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: GOOGLE_GENERATIVE_AI_API_KEY
-            - name: EVOLUTION_API_URL
-              value: http://evolution-api.personal-assistence.svc.cluster.local:8080
-            - name: EVOLUTION_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: EVOLUTION_API_KEY
-            - name: EVOLUTION_INSTANCE
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: EVOLUTION_INSTANCE
-            - name: WEBHOOK_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: WEBHOOK_SECRET
-            - name: WHATSAPP_SELF_TEST_MODE
-              value: "true"
             - name: AUTH_GOOGLE_ID
               valueFrom:
                 secretKeyRef:
@@ -135,13 +105,13 @@ spec:
               value: "http/protobuf"
           readinessProbe:
             httpGet:
-              path: /auth
+              path: /api/ready
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /auth
+              path: /api/health
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 20

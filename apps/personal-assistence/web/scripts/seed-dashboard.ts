@@ -21,7 +21,10 @@ import { and, eq } from "drizzle-orm";
 
 import { db } from "../src/lib/db";
 import { taskEvents, tasks, users, workGroups } from "../src/lib/db/schema";
-import { formatGroupLabel, normalizeGroupKey } from "../src/lib/groups/normalize";
+import {
+  formatGroupLabel,
+  normalizeGroupKey,
+} from "../src/lib/groups/normalize";
 
 config({ path: ".env.local" });
 config({ path: ".env" });
@@ -186,15 +189,14 @@ function randomStartedAndEnded(
   }
 
   const startedAt = new Date(
-    rangeStart.getTime() +
-      Math.random() * (latestStart - rangeStart.getTime()),
+    rangeStart.getTime() + Math.random() * (latestStart - rangeStart.getTime()),
   );
   const endedAt = new Date(startedAt.getTime() + durationMs);
 
   return { startedAt, endedAt };
 }
 
-async function resolveUser(email?: string, phone?: string) {
+async function resolveUser(email?: string) {
   if (email) {
     const user = await db.query.users.findFirst({
       where: eq(users.email, email),
@@ -203,18 +205,10 @@ async function resolveUser(email?: string, phone?: string) {
     return user;
   }
 
-  if (phone) {
-    const user = await db.query.users.findFirst({
-      where: eq(users.phone, phone),
-    });
-    if (!user) throw new Error(`Usuário não encontrado: ${phone}`);
-    return user;
-  }
-
   const user = await db.query.users.findFirst();
   if (!user) {
     throw new Error(
-      "Nenhum usuário no banco. Faça login uma vez ou use --email / --phone.",
+      "Nenhum usuário no banco. Faça login uma vez ou use --email.",
     );
   }
 
@@ -255,9 +249,7 @@ async function ensureWorkGroups(userId: string) {
   return groups;
 }
 
-function pickGroupId(
-  groups: { id: string }[],
-): string | null {
+function pickGroupId(groups: { id: string }[]): string | null {
   const roll = Math.random();
   if (roll < 0.2) return null;
   return pick(groups).id;
@@ -340,7 +332,7 @@ async function main() {
 
   console.log("=== Seed dashboard — tarefas aleatórias ===\n");
 
-  const user = await resolveUser(options.email, options.phone);
+  const user = await resolveUser(options.email);
   console.log(`Usuário: ${user.name ?? user.email ?? user.id}`);
   console.log(
     `Intervalo: ${options.from.toISOString().slice(0, 10)} → ${options.to.toISOString().slice(0, 10)}`,
@@ -366,7 +358,9 @@ async function main() {
     console.log(`  ${created}/${options.count} tarefas…`);
   }
 
-  console.log(`\n✓ ${created} tarefas finalizadas criadas com eventos de timeline.`);
+  console.log(
+    `\n✓ ${created} tarefas finalizadas criadas com eventos de timeline.`,
+  );
 }
 
 main().catch((error) => {

@@ -17,7 +17,10 @@ import { and, eq, sql } from "drizzle-orm";
 
 import { db } from "../src/lib/db";
 import { taskEvents, tasks, users, workGroups } from "../src/lib/db/schema";
-import { formatGroupLabel, normalizeGroupKey } from "../src/lib/groups/normalize";
+import {
+  formatGroupLabel,
+  normalizeGroupKey,
+} from "../src/lib/groups/normalize";
 
 config({ path: ".env.local" });
 config({ path: ".env" });
@@ -35,8 +38,8 @@ if (!isDev) {
 
 const CONTEXT_LABEL = "Rosane";
 const MAX_DAILY_MINUTES = 10 * 60;
-const MIN_MONTH_MINUTES = 80 * 60;
-const MAX_PR_MONTH_MINUTES = 10 * 60;
+const MIN_MONTH_MINUTES = 72 * 60;
+const MAX_PR_MONTH_MINUTES = 3 * 60;
 const PAUSE_BETWEEN_TASKS_MIN = 20;
 const PAUSE_BETWEEN_TASKS_MAX = 120;
 
@@ -52,7 +55,7 @@ type TaskType = {
 
 const TASK_TYPES: TaskType[] = [
   {
-    title: "Nova AiVA",
+    title: "Diana",
     weight: 0.5,
     minMinutes: 121,
     maxMinutes: 240,
@@ -83,14 +86,14 @@ const TASK_TYPES: TaskType[] = [
   {
     title: "Reunião",
     weight: 0.06,
-    minMinutes: 20,
-    maxMinutes: 60,
+    minMinutes: 120,
+    maxMinutes: 180,
     longBias: 0.1,
     commercialOnly: true,
   },
 ];
 
-const NOVA_AIVA_TYPE = TASK_TYPES.find((type) => type.title === "Nova AiVA")!;
+const DIANA_TYPE = TASK_TYPES.find((type) => type.title === "Diana")!;
 
 type CliOptions = {
   from: Date;
@@ -217,7 +220,11 @@ function getPrRemaining(state: MonthState): number {
   return Math.max(0, MAX_PR_MONTH_MINUTES - state.prMinutesUsed);
 }
 
-function getTypeMaxDuration(type: TaskType, remaining: number, state: MonthState): number {
+function getTypeMaxDuration(
+  type: TaskType,
+  remaining: number,
+  state: MonthState,
+): number {
   let max = Math.min(type.maxMinutes, remaining);
 
   if (type.title === "Correção de PR") {
@@ -258,7 +265,7 @@ function pickDuration(
 
   let duration = randomInt(type.minMinutes, max);
 
-  if (type.title === "Nova AiVA" && duration <= 120) {
+  if (type.title === "Diana" && duration <= 120) {
     duration = 121;
   }
 
@@ -266,7 +273,7 @@ function pickDuration(
     duration = Math.min(max, duration + randomInt(15, 45));
   }
 
-  if (type.title === "Nova AiVA" && duration <= 120) {
+  if (type.title === "Diana" && duration <= 120) {
     duration = Math.min(max, 121);
   }
 
@@ -378,10 +385,7 @@ function pickWeekdayStart(
   return null;
 }
 
-function pickWeekendStart(
-  day: TZDate,
-  durationMinutes: number,
-): TZDate | null {
+function pickWeekendStart(day: TZDate, durationMinutes: number): TZDate | null {
   const latestEnd = nextDayAt(day, 1, 0);
 
   for (let attempt = 0; attempt < 10; attempt += 1) {
@@ -437,9 +441,7 @@ function pickStartAfter(
 
   const start = new TZDate(earliest, day.timeZone);
   const end = new Date(start.getTime() + durationMinutes * 60_000);
-  const dayEnd = isWeekend(day)
-    ? nextDayAt(day, 1, 0)
-    : atTime(day, 23, 59);
+  const dayEnd = isWeekend(day) ? nextDayAt(day, 1, 0) : atTime(day, 23, 59);
 
   if (end.getTime() <= dayEnd.getTime()) {
     return start;
@@ -503,8 +505,7 @@ function planDay(day: TZDate, state: MonthState): void {
 
   const dayKey = formatDayLabel(day);
   let remaining = dailyBudget;
-  const maxTasks =
-    dailyBudget >= 360 ? randomInt(2, 4) : randomInt(1, 3);
+  const maxTasks = dailyBudget >= 360 ? randomInt(2, 4) : randomInt(1, 3);
 
   while (remaining > 0) {
     const existing = state.tasksByDay.get(dayKey) ?? [];
@@ -534,22 +535,17 @@ function fillMonthToMinimum(state: MonthState): void {
     const dayKey = formatDayLabel(day);
     const existing = state.tasksByDay.get(dayKey) ?? [];
 
-    const remainingBudget = MAX_DAILY_MINUTES - existing.reduce(
-      (sum, task) => sum + task.durationMinutes,
-      0,
-    );
+    const remainingBudget =
+      MAX_DAILY_MINUTES -
+      existing.reduce((sum, task) => sum + task.durationMinutes, 0);
 
-    if (remainingBudget < NOVA_AIVA_TYPE.minMinutes) continue;
+    if (remainingBudget < DIANA_TYPE.minMinutes) continue;
 
-    const duration = pickDuration(
-      NOVA_AIVA_TYPE,
-      remainingBudget,
-      state,
-    );
+    const duration = pickDuration(DIANA_TYPE, remainingBudget, state);
 
-    if (duration < NOVA_AIVA_TYPE.minMinutes) continue;
+    if (duration < DIANA_TYPE.minMinutes) continue;
 
-    const task = placeTaskOnDay(day, NOVA_AIVA_TYPE, duration, existing);
+    const task = placeTaskOnDay(day, DIANA_TYPE, duration, existing);
     if (!task) continue;
 
     registerTask(state, day, task);
@@ -616,7 +612,7 @@ function planMonth(from: Date, to: Date, timezone: string): MonthState {
   return state;
 }
 
-async function resolveUser(email?: string, phone?: string) {
+async function resolveUser(email?: string) {
   if (email) {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await db.query.users.findFirst({
@@ -626,18 +622,10 @@ async function resolveUser(email?: string, phone?: string) {
     return user;
   }
 
-  if (phone) {
-    const user = await db.query.users.findFirst({
-      where: eq(users.phone, phone),
-    });
-    if (!user) throw new Error(`Usuário não encontrado: ${phone}`);
-    return user;
-  }
-
   const user = await db.query.users.findFirst();
   if (!user) {
     throw new Error(
-      "Nenhum usuário no banco. Faça login uma vez ou use --email / --phone.",
+      "Nenhum usuário no banco. Faça login uma vez ou use --email.",
     );
   }
 
@@ -731,7 +719,7 @@ async function insertTasks(
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const user = await resolveUser(options.email, options.phone);
+  const user = await resolveUser(options.email);
   const group = await ensureRosaneGroup(user.id);
   const monthPlan = planMonth(options.from, options.to, user.timezone);
 
@@ -743,13 +731,15 @@ async function main() {
   );
   console.log(`Mínimo mensal: ${MIN_MONTH_MINUTES / 60}h`);
   console.log(`Máximo Correção de PR: ${MAX_PR_MONTH_MINUTES / 60}h`);
-  console.log(`Pausa entre tarefas: ${PAUSE_BETWEEN_TASKS_MIN}-${PAUSE_BETWEEN_TASKS_MAX} min\n`);
+  console.log(
+    `Pausa entre tarefas: ${PAUSE_BETWEEN_TASKS_MIN}-${PAUSE_BETWEEN_TASKS_MAX} min\n`,
+  );
 
   let totalTasks = 0;
   const stats: Record<string, { count: number; minutes: number }> = {};
 
-  const sortedDays = [...monthPlan.tasksByDay.entries()].sort(([left], [right]) =>
-    left.localeCompare(right),
+  const sortedDays = [...monthPlan.tasksByDay.entries()].sort(
+    ([left], [right]) => left.localeCompare(right),
   );
 
   for (const [dayLabel, planned] of sortedDays) {
@@ -773,9 +763,7 @@ async function main() {
   }
 
   console.log(`\n✓ ${totalTasks} tarefas criadas no contexto Rosane`);
-  console.log(
-    `  Total: ${(monthPlan.totalMinutes / 60).toFixed(1)} horas`,
-  );
+  console.log(`  Total: ${(monthPlan.totalMinutes / 60).toFixed(1)} horas`);
   console.log(
     `  Correção de PR: ${(monthPlan.prMinutesUsed / 60).toFixed(1)}h / ${MAX_PR_MONTH_MINUTES / 60}h`,
   );
@@ -793,9 +781,7 @@ async function main() {
   const fromIso = options.from.toISOString().slice(0, 10);
   const toIso = options.to.toISOString().slice(0, 10);
   console.log("\nPara ver no dashboard, ajuste o período:");
-  console.log(
-    `  /dashboard?period=custom&from=${fromIso}&to=${toIso}`,
-  );
+  console.log(`  /dashboard?period=custom&from=${fromIso}&to=${toIso}`);
   console.log("  ou selecione “3 meses” no filtro de datas.");
 }
 

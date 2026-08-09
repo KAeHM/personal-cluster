@@ -1,0 +1,25 @@
+---
+description: AppError, catálogos e respostas seguras ao cliente
+globs: "{src/common/errors/**,src/**/domain/errors.ts}"
+alwaysApply: false
+---
+
+# Typed errors
+
+## Per module
+
+`defineErrorCatalog` in `domain/errors.ts` with `code`, `httpStatus`, `exposeToClient`, `severity`.
+
+```ts
+throw USER_ERRORS.create("NOT_FOUND", { meta: { id } });
+```
+
+## HTTP / Actions
+
+- Route Handlers: `errorResponse(error, context)` — logs + `toClientError` + status.
+- Never send stack traces or internal messages when `exposeToClient: false`.
+- Unexpected errors: client gets `digest` or empty payload; server logs via `logError`.
+
+## Docs
+
+Run `npm run errors:doc` after adding catalog entries. Read `src/common/errors/README.md`.

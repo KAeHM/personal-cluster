@@ -2,10 +2,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Avatar({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
+function Avatar({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
       data-slot="avatar"
@@ -18,10 +15,7 @@ function Avatar({
   );
 }
 
-function AvatarImage({
-  className,
-  ...props
-}: React.ComponentProps<"img">) {
+function AvatarImage({ className, ...props }: React.ComponentProps<"img">) {
   return (
     <img
       data-slot="avatar-image"
@@ -31,15 +25,12 @@ function AvatarImage({
   );
 }
 
-function AvatarFallback({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
+function AvatarFallback({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
       data-slot="avatar-fallback"
       className={cn(
-        "flex size-full items-center justify-center rounded-full bg-primary/15 text-xs font-medium text-primary",
+        "bg-primary/15 text-primary flex size-full items-center justify-center rounded-full text-xs font-medium",
         className,
       )}
       {...props}

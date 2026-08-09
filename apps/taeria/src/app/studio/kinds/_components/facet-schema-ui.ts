@@ -1,0 +1,32 @@
+export type {
+  FacetFieldType,
+  FacetFieldDef,
+  ContentFacetFormValue,
+  EdgesFacetFormValue,
+  EmbeddingsFacetFormValue,
+  VisualFacetFormValue,
+  WikiFieldPlacement,
+  WikiEdgePlacement,
+} from "@/modules/worldbuild/application/schemas/facet-schema";
+
+export {
+  FACET_FIELD_TYPE_LABELS,
+  DEFAULT_CONTENT_FACET_FIELDS,
+  DEFAULT_VISUAL_FACET_FIELDS,
+  DEFAULT_EDGE_RELATION_TYPES,
+  WIKI_FIELD_PLACEMENT_LABELS,
+  WIKI_EDGE_PLACEMENT_LABELS,
+  defaultContentFacet,
+  buildContentFacetsDefaults,
+  defaultEdgesFacet,
+  defaultEmbeddingsFacet,
+  defaultVisualFacet,
+  parseContentFacetSchema,
+  parseStoredFacetSchema,
+  buildContentFacetSchema,
+  parseEdgesFacetSchema,
+  parseEdgesWikiPlacements,
+  buildEdgesFacetSchema,
+  slugifyName,
+  facetTypeLabel,
+} from "@/modules/worldbuild/application/schemas/facet-schema";
