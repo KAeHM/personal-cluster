@@ -19,6 +19,7 @@ Os valores sensíveis e endereços completos ficam em `inventory/contabo/hosts.y
 
 ## Pendências externas
 
-- `PENDING`: definir domínio pessoal e hosted zone do Route 53.
+- `DONE`: domínio `kaehm.dev` e hosted zone do Route 53 criados na conta de gerenciamento.
+- `DONE`: AWS Organization, IAM Identity Center, orçamento mensal de US$ 20 e guardas de custo configurados.
 - `PENDING`: criar bucket e credencial de recuperação por CloudFormation.
 - `PENDING`: definir canal de alertas.

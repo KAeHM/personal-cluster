@@ -27,3 +27,8 @@ jobs:
             echo 'Plaintext Kubernetes Secret detected.' >&2
             exit 1
           fi
+      - name: Validate AWS organization policies
+        run: |
+          for policy in aws/organization/*.json; do
+            jq empty "$policy"
+          done
