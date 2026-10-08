@@ -1,0 +1,15 @@
+.idea/
+.vscode/
+.DS_Store
+
+# Local access and inventories
+inventory/contabo/hosts.yaml
+*.kubeconfig
+*.pem
+*.key
+
+# Secrets must never be committed in plaintext
+**/secrets.local.yaml
+**/*.secret.env
+.env
+.env.*

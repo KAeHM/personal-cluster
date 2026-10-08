@@ -1,0 +1,29 @@
+name: Validate platform
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: v1.36.6
+      - name: Render cluster root
+        run: kubectl kustomize clusters/contabo > /tmp/root.yaml
+      - name: Render Argo CD applications
+        run: kubectl kustomize clusters/contabo/apps > /tmp/apps.yaml
+      - name: Render namespaces
+        run: kubectl kustomize platform/namespaces > /tmp/namespaces.yaml
+      - name: Render ingress
+        run: kubectl kustomize platform/ingress > /tmp/ingress.yaml
+      - name: Reject plaintext secret resources
+        run: |
+          if grep -R --include='*.yaml' --include='*.yml' -nE '^kind:[[:space:]]+Secret$|^[[:space:]]*stringData:' . --exclude-dir=.git; then
+            echo 'Plaintext Kubernetes Secret detected.' >&2
+            exit 1
+          fi

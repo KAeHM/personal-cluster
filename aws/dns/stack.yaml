@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: DNS publico da plataforma Kubernetes pessoal
+Parameters:
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+  BaseDomain:
+    Type: String
+    Description: Dominio sem ponto final, por exemplo example.com
+  EdgePrimaryIPv4:
+    Type: String
+    AllowedPattern: "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"
+  EdgeSecondaryIPv4:
+    Type: String
+    AllowedPattern: "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"
+Resources:
+  AppsPrimary:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub "*.apps.${BaseDomain}."
+      Type: A
+      TTL: 60
+      SetIdentifier: edge-primary
+      MultiValueAnswer: true
+      ResourceRecords: [!Ref EdgePrimaryIPv4]
+  AppsSecondary:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub "*.apps.${BaseDomain}."
+      Type: A
+      TTL: 60
+      SetIdentifier: edge-secondary
+      MultiValueAnswer: true
+      ResourceRecords: [!Ref EdgeSecondaryIPv4]
+Outputs:
+  WildcardName:
+    Value: !Sub "*.apps.${BaseDomain}"

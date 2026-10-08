@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://grafana-community.github.io/helm-charts
+    chart: grafana
+    targetRevision: 13.2.5
+    helm:
+      releaseName: grafana
+      valuesObject:
+        replicas: 1
+        service:
+          type: ClusterIP
+        ingress:
+          enabled: false
+        persistence:
+          enabled: false
+        resources:
+          requests: { cpu: 100m, memory: 256Mi }
+          limits: { cpu: 500m, memory: 768Mi }
+        grafana.ini:
+          analytics:
+            reporting_enabled: false
+            check_for_updates: false
+          security:
+            disable_gravatar: true
+          auth.anonymous:
+            enabled: false
+        datasources:
+          datasources.yaml:
+            apiVersion: 1
+            datasources:
+              - name: Prometheus
+                uid: prometheus
+                type: prometheus
+                access: proxy
+                url: http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+                isDefault: true
+                editable: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

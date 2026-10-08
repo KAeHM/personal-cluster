@@ -1,0 +1,4 @@
+# Instalar nos tres servidores em:
+# /etc/rancher/k3s/config.yaml.d/90-etcd-s3.yaml
+etcd-s3: true
+etcd-s3-config-secret: k3s-etcd-snapshot-s3-config

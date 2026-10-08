@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Recuperacao externa do K3s pessoal
+Parameters:
+  ClusterName:
+    Type: String
+    Default: personal-contabo
+    AllowedPattern: "[a-z0-9-]+"
+Resources:
+  SnapshotBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-etcd-snapshots
+            Status: Enabled
+            Prefix: etcd/
+            ExpirationInDays: 30
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 7
+  SnapshotUploader:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Sub "${ClusterName}-etcd-uploader"
+      Policies:
+        - PolicyName: upload-etcd-snapshots
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt SnapshotBucket.Arn
+                Condition:
+                  StringLike:
+                    s3:prefix: ["etcd/*"]
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub "${SnapshotBucket.Arn}/etcd/*"
+Outputs:
+  BucketName:
+    Value: !Ref SnapshotBucket
+  UploaderUserName:
+    Value: !Ref SnapshotUploader
+  RecommendedServerTokenParameter:
+    Value: !Sub "/personal/platform/${ClusterName}/k3s/server-token"
