@@ -21,5 +21,6 @@ Os valores sensíveis e endereços completos ficam em `inventory/contabo/hosts.y
 
 - `DONE`: domínio `kaehm.dev` e hosted zone do Route 53 criados na conta de gerenciamento.
 - `DONE`: AWS Organization, IAM Identity Center, orçamento mensal de US$ 20 e guardas de custo configurados.
-- `PENDING`: criar bucket e credencial de recuperação por CloudFormation.
+- `DONE`: stack `personal-contabo-recovery`, bucket versionado e usuário IAM limitado criados na conta `personal-platform`.
+- `PENDING`: criar a access key do uploader e selar a credencial no cluster.
 - `PENDING`: definir canal de alertas.
