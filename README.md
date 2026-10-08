@@ -19,7 +19,7 @@ Os quatro nós são `Cloud VPS 6` na região EU. Os servidores K3s permanecem ap
 
 - Ubuntu 24.04 LTS e acesso SSH por chave exclusiva.
 - Interconexão privada por Contabo Private Networking ou WireGuard dedicado.
-- K3s `v1.36.6+k3s1` com etcd embarcado em três servidores.
+- K3s `v1.36.5+k3s1` com etcd embarcado em três servidores.
 - Argo CD HA com padrão App of Apps.
 - Traefik, cert-manager e Sealed Secrets.
 - kube-prometheus-stack e Grafana na primeira etapa.

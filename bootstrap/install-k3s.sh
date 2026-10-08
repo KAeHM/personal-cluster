@@ -5,7 +5,7 @@ set -euo pipefail
 : "${NODE_IP:?Defina NODE_IP com o endereco da rede privada}"
 : "${PUBLIC_IP:?Defina PUBLIC_IP com o IPv4 publico da VPS}"
 
-K3S_VERSION="${K3S_VERSION:-v1.36.6+k3s1}"
+K3S_VERSION="${K3S_VERSION:-v1.36.5+k3s1}"
 TOKEN_FILE="${TOKEN_FILE:-/etc/rancher/k3s/cluster-token}"
 FIRST_SERVER_URL="${FIRST_SERVER_URL:-https://10.70.0.11:6443}"
 
@@ -66,8 +66,8 @@ else
   printf 'server: "%s"\n' "$FIRST_SERVER_URL" >> /etc/rancher/k3s/config.yaml
 fi
 
-curl -sfL https://get.k3s.io -o /tmp/install-k3s.sh
-INSTALL_K3S_VERSION="$K3S_VERSION" INSTALL_K3S_EXEC="$MODE" sh /tmp/install-k3s.sh
+curl -sfL https://get.k3s.io -o /tmp/get-k3s.sh
+INSTALL_K3S_VERSION="$K3S_VERSION" INSTALL_K3S_EXEC="$MODE" sh /tmp/get-k3s.sh
 
 if [[ "$MODE" == server ]]; then
   SERVICE=k3s

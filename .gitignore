@@ -4,6 +4,7 @@
 
 # Local access and inventories
 inventory/contabo/hosts.yaml
+ops/local/
 *.kubeconfig
 *.pem
 *.key
