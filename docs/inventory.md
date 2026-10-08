@@ -9,11 +9,16 @@ Os valores sensíveis e endereços completos ficam em `inventory/contabo/hosts.y
 | `personal-k8s-cp-3` | `vmi3647687` | Cloud VPS 6 | EU | K3s server + etcd + edge |
 | `personal-k8s-worker-1` | `vmi3647688` | Cloud VPS 6 | EU | K3s agent + edge |
 
-## Pendências antes do bootstrap
+## Estado do bootstrap
 
-- `PENDING`: escolher Contabo Private Networking ou WireGuard gerenciado por nós.
-- `PENDING`: confirmar/reinstalar Ubuntu 24.04 LTS.
-- `PENDING`: criar chave SSH exclusiva e validar fingerprints dos hosts.
+- `DONE`: WireGuard gerenciado pela plataforma em `10.70.0.0/24`.
+- `DONE`: Ubuntu 24.04 LTS reinstalado nas quatro VPS.
+- `DONE`: acesso exclusivo por `platform-admin` e chave `personal-cluster_ed25519`; senha e login SSH de root desabilitados.
+- `DONE`: firewalls `personal-k8s-control-plane` e `personal-k8s-edge` atribuídos às quatro VPS.
+- `DONE`: K3s HA e Argo CD reconciliados com a branch `main`.
+
+## Pendências externas
+
 - `PENDING`: definir domínio pessoal e hosted zone do Route 53.
 - `PENDING`: criar bucket e credencial de recuperação por CloudFormation.
 - `PENDING`: definir canal de alertas.

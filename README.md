@@ -18,7 +18,7 @@ Os quatro nós são `Cloud VPS 6` na região EU. Os servidores K3s permanecem ap
 ## Camadas
 
 - Ubuntu 24.04 LTS e acesso SSH por chave exclusiva.
-- Interconexão privada por Contabo Private Networking ou WireGuard dedicado.
+- Interconexão privada por WireGuard dedicado em `10.70.0.0/24`.
 - K3s `v1.36.5+k3s1` com etcd embarcado em três servidores.
 - Argo CD HA com padrão App of Apps.
 - Traefik, cert-manager e Sealed Secrets.
@@ -28,6 +28,8 @@ Os quatro nós são `Cloud VPS 6` na região EU. Os servidores K3s permanecem ap
 
 ## Estado
 
-A base declarativa está sendo reconstruída. Nenhum manifesto deve ser aplicado enquanto os itens marcados como `PENDING` no inventário não estiverem resolvidos.
+Cluster provisionado em 8 de outubro de 2026. Os quatro nós estão `Ready`, o etcd tem três membros, o Argo CD reconcilia `main` e todas as Applications da plataforma estão `Synced/Healthy`. Traefik atende somente em `cp-3` e `worker-1`.
+
+O acesso Kubernetes local usa `~/.kube/personal-contabo.yaml` pelo túnel criado por `ops/kube-tunnel.ps1`; ele não é mesclado com outros kubeconfigs. O DNS público e a recuperação na AWS permanecem pendentes até a escolha do domínio e da conta AWS.
 
 Leia [arquitetura](docs/architecture.md), [inventário](docs/inventory.md), [bootstrap](bootstrap/README.md), [entrega](docs/delivery.md) e [recuperação](docs/recovery.md).

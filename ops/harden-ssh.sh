@@ -16,4 +16,16 @@ EOF
 
 sshd -t
 systemctl restart ssh
+
+passwd --lock root
+rm -f /root/.ssh/authorized_keys
+rm -f \
+  /tmp/bootstrap-host.sh \
+  /tmp/bootstrap-k3s.sh \
+  /tmp/cluster-token \
+  /tmp/configure-wireguard.sh \
+  /tmp/get-k3s.sh \
+  /tmp/harden-ssh.sh \
+  /tmp/wg.peers
+
 echo "SSH_HARDENED=1"
