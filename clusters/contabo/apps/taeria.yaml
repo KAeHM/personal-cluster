@@ -32,6 +32,8 @@ spec:
       kind: Job
     - group: bitnami.com
       kind: SealedSecret
+    - group: barmancloud.cnpg.io
+      kind: ObjectStore
     - group: monitoring.coreos.com
       kind: PrometheusRule
     - group: monitoring.coreos.com
@@ -44,6 +46,10 @@ spec:
       kind: PodDisruptionBudget
     - group: postgresql.cnpg.io
       kind: Cluster
+    - group: postgresql.cnpg.io
+      kind: Backup
+    - group: postgresql.cnpg.io
+      kind: ScheduledBackup
   orphanedResources:
     warn: true
 ---
@@ -70,4 +76,3 @@ spec:
       - ApplyOutOfSyncOnly=true
       - PruneLast=true
       - ServerSideApply=true
-
