@@ -9,11 +9,12 @@ spec:
       replicas: 2
     ports:
       web:
-        redirections:
-          entryPoint:
-            to: websecure
-            scheme: https
-            permanent: true
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
     podDisruptionBudget:
       enabled: true
       minAvailable: 1
