@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: azure/setup-kubectl@v4
+      - uses: azure/setup-kubectl@v5.1.0
         with:
-          version: v1.36.6
+          version: v1.36.1
       - name: Render cluster root
         run: kubectl kustomize clusters/contabo > /tmp/root.yaml
       - name: Render Argo CD applications
@@ -21,9 +21,18 @@ jobs:
         run: kubectl kustomize platform/namespaces > /tmp/namespaces.yaml
       - name: Render ingress
         run: kubectl kustomize platform/ingress > /tmp/ingress.yaml
+      - name: Render DNS configuration
+        run: kubectl kustomize platform/dns > /tmp/dns.yaml
+      - name: Render recovery
+        run: kubectl kustomize platform/recovery > /tmp/recovery.yaml
       - name: Reject plaintext secret resources
         run: |
           if grep -R --include='*.yaml' --include='*.yml' -nE '^kind:[[:space:]]+Secret$|^[[:space:]]*stringData:' . --exclude-dir=.git; then
             echo 'Plaintext Kubernetes Secret detected.' >&2
             exit 1
           fi
+      - name: Validate AWS organization policies
+        run: |
+          for policy in aws/organization/*.json; do
+            jq empty "$policy"
+          done

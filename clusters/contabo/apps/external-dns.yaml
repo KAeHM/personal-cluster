@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://kubernetes-sigs.github.io/external-dns/
+    chart: external-dns
+    targetRevision: 1.23.0
+    helm:
+      releaseName: external-dns
+      valuesObject:
+        provider:
+          name: aws
+        sources:
+          - ingress
+        domainFilters:
+          - kaehm.dev
+        annotationFilter: external-dns.kaehm.dev/publish=true
+        policy: upsert-only
+        registry: txt
+        txtOwnerId: personal-contabo
+        txtPrefix: _external-dns.
+        interval: 1m
+        triggerLoopOnEvent: true
+        extraArgs:
+          - --aws-zone-type=public
+          - --default-targets=62.84.182.225
+          - --default-targets=212.47.79.135
+          - --force-default-targets
+        env:
+          - name: AWS_REGION
+            value: eu-central-1
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: route53-credentials
+                key: access-key-id
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: route53-credentials
+                key: secret-access-key
+        resources:
+          requests:
+            cpu: 20m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 192Mi
+        serviceMonitor:
+          enabled: true
+          additionalLabels:
+            release: monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

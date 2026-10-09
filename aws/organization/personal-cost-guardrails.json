@@ -1,0 +1,60 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyAccountEscape",
+      "Effect": "Deny",
+      "Action": [
+        "organizations:LeaveOrganization",
+        "account:CloseAccount"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyCostlyProvisioning",
+      "Effect": "Deny",
+      "Action": [
+        "ec2:RunInstances",
+        "ec2:CreateFleet",
+        "ec2:CreateNatGateway",
+        "autoscaling:CreateAutoScalingGroup",
+        "eks:CreateCluster",
+        "ecs:CreateService",
+        "ecs:RunTask",
+        "rds:CreateDBInstance",
+        "rds:CreateDBCluster",
+        "elasticache:CreateCacheCluster",
+        "elasticache:CreateReplicationGroup",
+        "memorydb:CreateCluster",
+        "redshift:CreateCluster",
+        "redshift-serverless:CreateWorkgroup",
+        "es:CreateElasticsearchDomain",
+        "sagemaker:CreateNotebookInstance",
+        "sagemaker:CreateTrainingJob",
+        "lightsail:CreateInstances",
+        "lightsail:CreateContainerService",
+        "apprunner:CreateService",
+        "kafka:CreateCluster",
+        "kafka:CreateClusterV2"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyCommitmentsAndPurchases",
+      "Effect": "Deny",
+      "Action": [
+        "aws-marketplace:Subscribe",
+        "savingsplans:CreateSavingsPlan",
+        "ec2:PurchaseReservedInstancesOffering",
+        "ec2:PurchaseScheduledInstances",
+        "rds:PurchaseReservedDBInstancesOffering",
+        "elasticache:PurchaseReservedCacheNodesOffering",
+        "redshift:PurchaseReservedNodeOffering",
+        "route53domains:RegisterDomain",
+        "route53domains:RenewDomain",
+        "route53domains:TransferDomain"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

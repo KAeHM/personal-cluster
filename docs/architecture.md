@@ -16,9 +16,9 @@ O registro inicial dos nós usa `personal-k8s-cp-1`. Todos os endereços privado
 
 ## Entrada
 
-O Traefik incluído no K3s é configurado com duas réplicas. Somente `personal-k8s-cp-3` e `personal-k8s-worker-1` recebem as etiquetas de borda e ServiceLB. O Route 53 publica os dois IPs e pode adicionar health checks quando o domínio for definido.
+O Traefik incluído no K3s é configurado com duas réplicas. Somente `personal-k8s-cp-3` e `personal-k8s-worker-1` recebem as etiquetas de borda e ServiceLB. O ExternalDNS publica no Route 53 os nomes declarados pelas aplicações, sempre apontando para os dois IPs de borda.
 
-Aplicações públicas usam cert-manager com ACME HTTP-01. Serviços administrativos ficam em `ClusterIP` e são acessados por túnel SSH ou rede administrativa privada.
+Aplicações públicas usam cert-manager com ACME DNS-01. Isso permite tanto `taeria.kaehm.dev` quanto nomes aninhados como `api.taeria.kaehm.dev`, sem registros manuais. Serviços administrativos ficam em `ClusterIP` e são acessados por túnel SSH ou rede administrativa privada.
 
 ## GitOps
 

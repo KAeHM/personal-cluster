@@ -24,12 +24,12 @@ Os quatro nós são `Cloud VPS 6` na região EU. Os servidores K3s permanecem ap
 - Traefik, cert-manager e Sealed Secrets.
 - kube-prometheus-stack e Grafana na primeira etapa.
 - Loki, Tempo e Alloy somente depois de medir a capacidade base.
-- Route 53 para DNS e S3/SSM para recuperação.
+- Route 53 com ExternalDNS para nomes sob demanda e S3/SSM para recuperação.
 
 ## Estado
 
 Cluster provisionado em 8 de outubro de 2026. Os quatro nós estão `Ready`, o etcd tem três membros, o Argo CD reconcilia `main` e todas as Applications da plataforma estão `Synced/Healthy`. Traefik atende somente em `cp-3` e `worker-1`.
 
-O acesso Kubernetes local usa `~/.kube/personal-contabo.yaml` pelo túnel criado por `ops/kube-tunnel.ps1`; ele não é mesclado com outros kubeconfigs. O DNS público e a recuperação na AWS permanecem pendentes até a escolha do domínio e da conta AWS.
+O acesso Kubernetes local usa `~/.kube/personal-contabo.yaml` pelo túnel criado por `ops/kube-tunnel.ps1`; ele não é mesclado com outros kubeconfigs. A fundação AWS já possui organização, SSO, orçamento de US$ 20, guardas de custo, o domínio `kaehm.dev` e o bucket de recuperação. O uploader dedicado está ativo e um snapshot real do etcd foi validado no S3. O token do servidor está protegido no SSM e a automação de DNS e HTTPS possui credenciais separadas, mínimas e seladas para publicar nomes como `api.taeria.kaehm.dev`.
 
-Leia [arquitetura](docs/architecture.md), [inventário](docs/inventory.md), [bootstrap](bootstrap/README.md), [entrega](docs/delivery.md) e [recuperação](docs/recovery.md).
+Leia [arquitetura](docs/architecture.md), [DNS e HTTPS](docs/dns-and-tls.md), [inventário](docs/inventory.md), [fundação AWS](docs/aws-foundation.md), [bootstrap](bootstrap/README.md), [entrega](docs/delivery.md) e [recuperação](docs/recovery.md).

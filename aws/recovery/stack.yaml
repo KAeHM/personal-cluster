@@ -39,12 +39,10 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
+              # K3s validates the dedicated bucket with HeadBucket before upload.
               - Effect: Allow
                 Action: s3:ListBucket
                 Resource: !GetAtt SnapshotBucket.Arn
-                Condition:
-                  StringLike:
-                    s3:prefix: ["etcd/*"]
               - Effect: Allow
                 Action: s3:PutObject
                 Resource: !Sub "${SnapshotBucket.Arn}/etcd/*"

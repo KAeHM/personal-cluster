@@ -59,3 +59,30 @@ spec:
   selector: { app: edge-probe }
   ports:
     - { name: http, port: 80, targetPort: http }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: edge-probe
+  namespace: edge-system
+  annotations:
+    external-dns.kaehm.dev/publish: "true"
+    external-dns.kubernetes.io/ttl: "60"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - probe.kaehm.dev
+      secretName: probe-kaehm-dev-tls
+  rules:
+    - host: probe.kaehm.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: edge-probe
+                port:
+                  name: http
