@@ -51,3 +51,7 @@ O registro `*.kaehm.dev` não cobre `api.taeria.kaehm.dev`. Esse nome aninhado f
 - `personal-contabo-cert-manager`, limitado aos registros TXT `_acme-challenge`.
 
 As access keys foram criadas uma única vez em 9 de outubro de 2026, seladas para os namespaces `external-dns` e `cert-manager` e removidas dos arquivos temporários. Nenhum valor em texto puro entra no Git.
+
+## Validação inicial
+
+Em 9 de outubro de 2026, `probe.kaehm.dev` foi publicado automaticamente nos dois IPs de borda. Os dois caminhos responderam `ok` por HTTPS com um certificado de produção do Let's Encrypt, validando ExternalDNS, Route 53, DNS-01, cert-manager e Traefik de ponta a ponta.

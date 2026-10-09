@@ -46,6 +46,5 @@ A stack `personal-contabo-dns-automation` está em `CREATE_COMPLETE` na conta de
 
 ## Próximas operações
 
-1. Validar a publicação automática e o certificado do endereço de prova após a reconciliação do Argo CD.
-2. Definir um canal de alertas de custo e operação.
-3. Revisar a transferência do registro do domínio após 22 de outubro de 2026.
+1. Definir um canal de alertas de custo e operação.
+2. Revisar a transferência do registro do domínio após 22 de outubro de 2026.
