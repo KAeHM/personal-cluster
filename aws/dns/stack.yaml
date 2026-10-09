@@ -1,38 +1,76 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: DNS publico da plataforma Kubernetes pessoal
+Description: Acesso minimo do cluster pessoal ao DNS publico no Route 53
 Parameters:
   HostedZoneId:
-    Type: AWS::Route53::HostedZone::Id
+    Type: String
+    AllowedPattern: "^Z[A-Z0-9]+$"
+    Description: ID da hosted zone publica, sem o prefixo /hostedzone/
   BaseDomain:
     Type: String
-    Description: Dominio sem ponto final, por exemplo example.com
-  EdgePrimaryIPv4:
-    Type: String
-    AllowedPattern: "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"
-  EdgeSecondaryIPv4:
-    Type: String
-    AllowedPattern: "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"
+    Default: kaehm.dev
+    AllowedPattern: "^[a-z0-9.-]+$"
+    Description: Dominio normalizado sem ponto final
 Resources:
-  AppsPrimary:
-    Type: AWS::Route53::RecordSet
+  ExternalDnsUser:
+    Type: AWS::IAM::User
     Properties:
-      HostedZoneId: !Ref HostedZoneId
-      Name: !Sub "*.apps.${BaseDomain}."
-      Type: A
-      TTL: 60
-      SetIdentifier: edge-primary
-      MultiValueAnswer: true
-      ResourceRecords: [!Ref EdgePrimaryIPv4]
-  AppsSecondary:
-    Type: AWS::Route53::RecordSet
+      UserName: personal-contabo-external-dns
+      Policies:
+        - PolicyName: ManagePublishedApplicationRecords
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ChangeApplicationRecords
+                Effect: Allow
+                Action: route53:ChangeResourceRecordSets
+                Resource: !Sub "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneId}"
+                Condition:
+                  ForAllValues:StringLike:
+                    route53:ChangeResourceRecordSetsNormalizedRecordNames:
+                      - !Sub "*.${BaseDomain}"
+                  ForAllValues:StringEquals:
+                    route53:ChangeResourceRecordSetsActions: [CREATE, UPSERT]
+                    route53:ChangeResourceRecordSetsRecordTypes: [A, AAAA, CNAME, TXT]
+              - Sid: InspectManagedZone
+                Effect: Allow
+                Action:
+                  - route53:ListResourceRecordSets
+                  - route53:ListTagsForResources
+                Resource: !Sub "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneId}"
+              - Sid: DiscoverHostedZones
+                Effect: Allow
+                Action: route53:ListHostedZones
+                Resource: "*"
+  CertManagerUser:
+    Type: AWS::IAM::User
     Properties:
-      HostedZoneId: !Ref HostedZoneId
-      Name: !Sub "*.apps.${BaseDomain}."
-      Type: A
-      TTL: 60
-      SetIdentifier: edge-secondary
-      MultiValueAnswer: true
-      ResourceRecords: [!Ref EdgeSecondaryIPv4]
+      UserName: personal-contabo-cert-manager
+      Policies:
+        - PolicyName: SolveDns01Challenges
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ObserveChallengeChanges
+                Effect: Allow
+                Action: route53:GetChange
+                Resource: !Sub "arn:${AWS::Partition}:route53:::change/*"
+              - Sid: ChangeAcmeTxtRecords
+                Effect: Allow
+                Action: route53:ChangeResourceRecordSets
+                Resource: !Sub "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneId}"
+                Condition:
+                  ForAllValues:StringLike:
+                    route53:ChangeResourceRecordSetsNormalizedRecordNames:
+                      - !Sub "_acme-challenge*.${BaseDomain}"
+                  ForAllValues:StringEquals:
+                    route53:ChangeResourceRecordSetsActions: [CREATE, UPSERT, DELETE]
+                    route53:ChangeResourceRecordSetsRecordTypes: [TXT]
+              - Sid: InspectChallengeRecords
+                Effect: Allow
+                Action: route53:ListResourceRecordSets
+                Resource: !Sub "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneId}"
 Outputs:
-  WildcardName:
-    Value: !Sub "*.apps.${BaseDomain}"
+  ExternalDnsUserName:
+    Value: !Ref ExternalDnsUser
+  CertManagerUserName:
+    Value: !Ref CertManagerUser

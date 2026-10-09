@@ -4,6 +4,8 @@ resources:
   - namespaces.yaml
   - ingress.yaml
   - cert-manager.yaml
+  - dns-config.yaml
+  - external-dns.yaml
   - sealed-secrets.yaml
   - recovery.yaml
   - monitoring.yaml

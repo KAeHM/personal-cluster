@@ -21,6 +21,8 @@ jobs:
         run: kubectl kustomize platform/namespaces > /tmp/namespaces.yaml
       - name: Render ingress
         run: kubectl kustomize platform/ingress > /tmp/ingress.yaml
+      - name: Render DNS configuration
+        run: kubectl kustomize platform/dns > /tmp/dns.yaml
       - name: Render recovery
         run: kubectl kustomize platform/recovery > /tmp/recovery.yaml
       - name: Reject plaintext secret resources

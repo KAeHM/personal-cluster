@@ -6,6 +6,8 @@ A conta `kaehm` é a conta de gerenciamento da AWS Organization. A conta-membro 
 
 O IAM Identity Center está na região `eu-central-1`, usando o diretório nativo. O usuário `samuel` recebe o conjunto `PlatformAdministrator` nas duas contas, com sessões de uma hora. O acesso diário deve acontecer pelo portal SSO; a conta root fica somente para recuperação.
 
+O usuário IAM legado `samuel-lima`, que ainda tinha login por senha, uma access key antiga e `AdministratorAccess`, foi removido em 9 de outubro de 2026. O acesso humano permanece exclusivamente no IAM Identity Center.
+
 O gerenciamento centralizado de root está habilitado para contas-membro, incluindo gerenciamento de credenciais e sessões privilegiadas. A conta de gerenciamento não possui access keys de root e mantém MFA.
 
 ## Custos
@@ -36,10 +38,14 @@ A stack `personal-contabo-recovery` está em `UPDATE_COMPLETE` na conta `persona
 
 Uma access key dedicada foi criada em 9 de outubro de 2026. A credencial está armazenada no cluster pelo `SealedSecret` em `platform/recovery`; nenhum valor em texto puro foi incluído no Git. Um snapshot manual foi enviado e confirmado no bucket após a implantação.
 
-O caminho recomendado para o token do servidor continua sendo `/personal/platform/personal-contabo/k3s/server-token` no Parameter Store.
+O token do servidor K3s está armazenado como `SecureString` padrão em `/personal/platform/personal-contabo/k3s/server-token`, no Parameter Store da conta `personal-platform` em `eu-central-1`. O valor foi comparado com o token atual do cluster após a gravação.
+
+## DNS automatizado
+
+A stack `personal-contabo-dns-automation` está em `CREATE_COMPLETE` na conta de gerenciamento. As credenciais separadas de ExternalDNS e cert-manager usam políticas mínimas para a hosted zone de `kaehm.dev`, estão seladas no Git e não permanecem em arquivos locais em texto aberto.
 
 ## Próximas operações
 
-1. Guardar o token do servidor K3s no parâmetro SSM recomendado e manter uma cópia de recuperação fora do cluster.
-2. Implantar `aws/dns/stack.yaml` na conta que hospeda a zona, depois de definir os dois IPs de borda.
+1. Validar a publicação automática e o certificado do endereço de prova após a reconciliação do Argo CD.
+2. Definir um canal de alertas de custo e operação.
 3. Revisar a transferência do registro do domínio após 22 de outubro de 2026.
