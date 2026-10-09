@@ -52,6 +52,14 @@ spec:
       kind: ScheduledBackup
   orphanedResources:
     warn: true
+    ignore:
+      # Generated and reconciled by the CloudNativePG and cert-manager operators.
+      - group: ""
+        kind: ConfigMap
+        name: cnpg-default-monitoring
+      - group: ""
+        kind: Secret
+        name: taeria-web-tls
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
