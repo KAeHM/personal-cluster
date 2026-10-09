@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server
+  namespace: argocd
+  annotations:
+    external-dns.kaehm.dev/publish: "true"
+    external-dns.kubernetes.io/ttl: "60"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - argo.kaehm.dev
+      secretName: argo-kaehm-dev-tls
+  rules:
+    - host: argo.kaehm.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  name: http

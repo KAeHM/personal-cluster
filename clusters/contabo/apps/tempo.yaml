@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  project: default
+  source:
+    repoURL: https://grafana-community.github.io/helm-charts
+    chart: tempo
+    targetRevision: 3.1.0
+    helm:
+      releaseName: tempo
+      valuesObject:
+        replicas: 1
+        tempo:
+          reportingEnabled: false
+          retention: 72h
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 1Gi }
+          metricsGenerator:
+            enabled: true
+            storage:
+              path: /var/tempo/generator/wal
+              remote_write:
+                - url: http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
+                  send_exemplars: true
+          overrides:
+            defaults:
+              metrics_generator:
+                processors:
+                  - span-metrics
+                  - service-graphs
+                max_active_series: 10000
+          storage:
+            trace:
+              backend: local
+              local:
+                path: /var/tempo/traces
+              wal:
+                path: /var/tempo/wal
+        persistence:
+          enabled: true
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          size: 10Gi
+        serviceMonitor:
+          enabled: true
+          additionalLabels:
+            release: monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

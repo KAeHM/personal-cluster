@@ -9,4 +9,9 @@ resources:
   - sealed-secrets.yaml
   - recovery.yaml
   - monitoring.yaml
+  - loki.yaml
+  - tempo.yaml
+  - alloy.yaml
+  - observability-config.yaml
   - grafana.yaml
+  - platform-access.yaml
