@@ -22,6 +22,7 @@ Os quatro nós são `Cloud VPS 6` na região EU. Os servidores K3s permanecem ap
 - K3s `v1.36.5+k3s1` com etcd embarcado em três servidores.
 - Argo CD HA com padrão App of Apps.
 - Traefik, cert-manager e Sealed Secrets.
+- CloudNativePG e Barman Cloud para bancos PostgreSQL com alta disponibilidade e recuperação externa.
 - kube-prometheus-stack, Grafana, Loki, Tempo e Alloy para métricas, logs e traces.
 - Route 53 com ExternalDNS para nomes sob demanda e S3/SSM para recuperação.
 
