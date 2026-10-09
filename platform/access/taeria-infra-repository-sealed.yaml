@@ -12,5 +12,7 @@ spec:
     url: AgAZv7meHNcuoO7qEj5SWPqEXXbFt/xhx8ovWUAwTcNJhCStVnYsNlJYBFTBKlkFWBtYxwljZkPBIeplx4PsAZaBHCVOOqpBE3HHfgebWIGfn6b7EOVPlTf+6zyhb/txXVEL7SrtCzVbJ+tunq7S+rQadezLbNAtVneMMEEuNBSBmVaJwhqn2o2eng42RpSJmK68CeSnWrT7AOp0KA9b/1qpvlGS9XAGo3Ye+mW/UwtdF8aaRJ50TAhVMCS0O6DMUGkPu2B28wqZYoB5hLBrlT99TFzJ+kU1KRhYTOKqWGCgJqmdZ8sHAUvKoRjQP4Y7njClYpglFegaHVF/jt3NZX+OOX1M02Fe/fJq5d+vPCIKo7j6kPclb5jh9HTStuxgXSbakNMH5vcgAMJidG3aeMbKqkJibucIBouMjiB3Y27B+G8iibygYSClW0eqAa8WWDmOLqfXrm0f3HCmF/sHvJhKXw+vw2o93QhbkuMbJ+wsgcx0wlQlvn5hlA2+/i5rYvzQws4tnycmuddiSzy26jBpLY1eyjV0IKLYXzDENPdf6UilOKnU02EJyrDYe2NmUcN2BeM5DCK/hFTRH6iZTB7FlU3ZdWkZ0kbFioC805sgvE13VeqxSSJIp0TbWGSVsjiSBZF95w2F7Uln5bMhiPFwG0SgcqtSjNWOhUICcSk9jQSjwyEEDLeT5Tsstl/CZGGlYKxoOJwdBynl8vx1Ts16b2l7byLawUepzq/Be+MlSEY2HnL5
   template:
     metadata:
+      labels:
+        argocd.argoproj.io/secret-type: repository
       name: taeria-infra-repository
       namespace: argocd
