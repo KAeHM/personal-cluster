@@ -4,7 +4,7 @@
 
 - Hospedar aplicações pessoais sem dar credenciais do cluster ao CI.
 - Tolerar a falha de um control plane e de um dos endpoints de entrada.
-- Manter API Kubernetes, Argo CD, Prometheus e Grafana fora da internet pública.
+- Manter a API Kubernetes, o Prometheus e os endpoints de ingestão fora da internet pública; publicar somente Argo CD e Grafana, com HTTPS e autenticação.
 - Tornar reinstalação e recuperação reproduzíveis.
 - Separar plataforma, aplicações e segredos.
 
@@ -18,7 +18,7 @@ O registro inicial dos nós usa `personal-k8s-cp-1`. Todos os endereços privado
 
 O Traefik incluído no K3s é configurado com duas réplicas. Somente `personal-k8s-cp-3` e `personal-k8s-worker-1` recebem as etiquetas de borda e ServiceLB. O ExternalDNS publica no Route 53 os nomes declarados pelas aplicações, sempre apontando para os dois IPs de borda.
 
-Aplicações públicas usam cert-manager com ACME DNS-01. Isso permite tanto `taeria.kaehm.dev` quanto nomes aninhados como `api.taeria.kaehm.dev`, sem registros manuais. Serviços administrativos ficam em `ClusterIP` e são acessados por túnel SSH ou rede administrativa privada.
+Aplicações públicas usam cert-manager com ACME DNS-01. Isso permite tanto `taeria.kaehm.dev` quanto nomes aninhados como `api.taeria.kaehm.dev`, sem registros manuais. Argo CD e Grafana são as únicas interfaces administrativas publicadas, em `argo.kaehm.dev` e `grafana.kaehm.dev`, protegidas pela autenticação nativa. Prometheus, Loki, Tempo, Alloy e a API Kubernetes permanecem em `ClusterIP`.
 
 ## GitOps
 
@@ -29,6 +29,12 @@ Cada aplicação possui repositório próprio. GitHub Actions testa e publica im
 ## Dados
 
 Volumes `local-path` são aceitos para dados descartáveis. PostgreSQL e arquivos duráveis exigem replicação por aplicação, backup externo, alerta e ensaio de restauração. Snapshot do etcd recupera o estado Kubernetes, não o conteúdo dos PVCs.
+
+## Observabilidade
+
+Prometheus coleta métricas do cluster e das aplicações. Alloy coleta logs dos pods pela API Kubernetes e recebe OTLP somente pela rede interna; os logs seguem para Loki e os traces para Tempo. O gerador de métricas do Tempo produz métricas RED e mapas de serviços no Prometheus. Grafana reúne as três fontes e correlaciona métricas, logs e traces por `trace_id`.
+
+Para controlar armazenamento, Prometheus retém sete dias, Loki sete dias e Tempo três dias. Loki e Tempo usam o modo monolítico com PVC local, adequado ao volume pessoal atual. A migração para armazenamento de objetos deve acontecer antes de exigir alta disponibilidade ou retenção longa.
 
 ## Segurança
 
