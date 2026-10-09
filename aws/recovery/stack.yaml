@@ -30,6 +30,12 @@ Resources:
             ExpirationInDays: 30
             NoncurrentVersionExpiration:
               NoncurrentDays: 7
+          - Id: expire-taeria-postgres-backups
+            Status: Enabled
+            Prefix: postgres/taeria/
+            ExpirationInDays: 21
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 7
   SnapshotUploader:
     Type: AWS::IAM::User
     Properties:
@@ -46,10 +52,42 @@ Resources:
               - Effect: Allow
                 Action: s3:PutObject
                 Resource: !Sub "${SnapshotBucket.Arn}/etcd/*"
+  TaeriaBackupUploader:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Sub "${ClusterName}-taeria-postgres-backup"
+      Policies:
+        - PolicyName: manage-taeria-postgres-backups
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ReadBucketLocation
+                Effect: Allow
+                Action: s3:GetBucketLocation
+                Resource: !GetAtt SnapshotBucket.Arn
+              - Sid: ListTaeriaBackupPrefix
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt SnapshotBucket.Arn
+                Condition:
+                  StringLike:
+                    s3:prefix:
+                      - postgres/taeria
+                      - postgres/taeria/*
+              - Sid: ManageTaeriaBackupObjects
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:AbortMultipartUpload
+                  - s3:DeleteObject
+                Resource: !Sub "${SnapshotBucket.Arn}/postgres/taeria/*"
 Outputs:
   BucketName:
     Value: !Ref SnapshotBucket
   UploaderUserName:
     Value: !Ref SnapshotUploader
+  TaeriaBackupUploaderUserName:
+    Value: !Ref TaeriaBackupUploader
   RecommendedServerTokenParameter:
     Value: !Sub "/personal/platform/${ClusterName}/k3s/server-token"
