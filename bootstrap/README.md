@@ -18,5 +18,7 @@ O bootstrap só começa depois que `docs/inventory.md` não tiver pendências de
 8. Usar HTTPS anônimo enquanto este repositório for público. Se ele se tornar privado, configurar GitHub App ou deploy key somente leitura.
 9. Aplicar `clusters/contabo/root.yaml`.
 10. Confirmar todas as Applications `Synced` e `Healthy` antes de configurar DNS público.
+11. Instalar `bootstrap/etcd-s3.yaml` como `/etc/rancher/k3s/config.yaml.d/90-etcd-s3.yaml` nos três servidores e reiniciar um servidor por vez, aguardando o nó voltar a `Ready` antes de seguir.
+12. Criar um snapshot manual e confirmar o objeto correspondente no prefixo `etcd/` do bucket de recuperação.
 
 O kubeconfig local fica em `~/.kube/personal-contabo.yaml`, com contexto `personal-contabo`. Não o mescle com o arquivo da ITRTech. Use `ops/kube.ps1` para abrir o túnel SSH e executar `kubectl` nesse contexto isolado.

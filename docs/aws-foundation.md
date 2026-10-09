@@ -32,12 +32,14 @@ O registro do domínio e a hosted zone são recursos separados. Quando o bloquei
 
 ## Recuperação
 
-A stack `personal-contabo-recovery` está em `CREATE_COMPLETE` na conta `personal-platform`, região `eu-central-1`. Ela criou o bucket versionado `personal-contabo-recovery-snapshotbucket-zogopah73wen` e o usuário IAM `personal-contabo-etcd-uploader`, limitado a listar o prefixo `etcd/` e enviar objetos para ele. Nenhuma access key foi criada.
+A stack `personal-contabo-recovery` está em `UPDATE_COMPLETE` na conta `personal-platform`, região `eu-central-1`. Ela criou o bucket versionado `personal-contabo-recovery-snapshotbucket-zogopah73wen` e o usuário IAM `personal-contabo-etcd-uploader`. O usuário pode verificar/listar o bucket dedicado e gravar somente em `etcd/`; ele não pode ler nem excluir objetos.
+
+Uma access key dedicada foi criada em 9 de outubro de 2026. A credencial está armazenada no cluster pelo `SealedSecret` em `platform/recovery`; nenhum valor em texto puro foi incluído no Git. Um snapshot manual foi enviado e confirmado no bucket após a implantação.
 
 O caminho recomendado para o token do servidor continua sendo `/personal/platform/personal-contabo/k3s/server-token` no Parameter Store.
 
 ## Próximas operações
 
-1. Criar a credencial limitada do uploader fora do CloudFormation e selá-la no cluster.
+1. Guardar o token do servidor K3s no parâmetro SSM recomendado e manter uma cópia de recuperação fora do cluster.
 2. Implantar `aws/dns/stack.yaml` na conta que hospeda a zona, depois de definir os dois IPs de borda.
 3. Revisar a transferência do registro do domínio após 22 de outubro de 2026.

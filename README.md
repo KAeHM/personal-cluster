@@ -30,6 +30,6 @@ Os quatro nós são `Cloud VPS 6` na região EU. Os servidores K3s permanecem ap
 
 Cluster provisionado em 8 de outubro de 2026. Os quatro nós estão `Ready`, o etcd tem três membros, o Argo CD reconcilia `main` e todas as Applications da plataforma estão `Synced/Healthy`. Traefik atende somente em `cp-3` e `worker-1`.
 
-O acesso Kubernetes local usa `~/.kube/personal-contabo.yaml` pelo túnel criado por `ops/kube-tunnel.ps1`; ele não é mesclado com outros kubeconfigs. A fundação AWS já possui organização, SSO, orçamento de US$ 20, guardas de custo, o domínio `kaehm.dev` e o bucket de recuperação. A publicação dos registros DNS e a ativação do uploader permanecem pendentes.
+O acesso Kubernetes local usa `~/.kube/personal-contabo.yaml` pelo túnel criado por `ops/kube-tunnel.ps1`; ele não é mesclado com outros kubeconfigs. A fundação AWS já possui organização, SSO, orçamento de US$ 20, guardas de custo, o domínio `kaehm.dev` e o bucket de recuperação. O uploader dedicado está ativo e um snapshot real do etcd foi validado no S3. A publicação dos registros DNS e o armazenamento do token do servidor no SSM permanecem pendentes.
 
 Leia [arquitetura](docs/architecture.md), [inventário](docs/inventory.md), [fundação AWS](docs/aws-foundation.md), [bootstrap](bootstrap/README.md), [entrega](docs/delivery.md) e [recuperação](docs/recovery.md).
