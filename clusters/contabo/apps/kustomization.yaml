@@ -7,6 +7,8 @@ resources:
   - dns-config.yaml
   - external-dns.yaml
   - sealed-secrets.yaml
+  - cloudnative-pg.yaml
+  - barman-cloud.yaml
   - recovery.yaml
   - monitoring.yaml
   - loki.yaml

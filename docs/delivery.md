@@ -6,4 +6,4 @@
 4. Argo CD lê o repositório de configuração com GitHub App ou deploy key somente leitura.
 5. QA pode usar auto-sync. Produção começa com sync manual e plano de reversão.
 
-O repositório da plataforma controla `AppProject`, destinos e repositórios permitidos. O repositório da aplicação controla Deployments, Services, Ingresses, migrations e dashboards específicos.
+O repositório da plataforma controla operadores compartilhados, `AppProject`, destinos e repositórios permitidos. Cada produto separa código e imagens do seu repositório GitOps: no Taeria, `taeria-k8s` contém a aplicação e `taeria-infra` contém Deployments, Services, Ingresses, migrações e observabilidade específica.
