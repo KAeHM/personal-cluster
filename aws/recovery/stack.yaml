@@ -61,25 +61,22 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              - Sid: ReadBucketLocation
+              # Barman validates the destination with HeadBucket. AWS maps that
+              # request to ListBucket, so it cannot carry an s3:prefix condition.
+              - Sid: InspectTaeriaBackupBucket
                 Effect: Allow
-                Action: s3:GetBucketLocation
+                Action:
+                  - s3:GetBucketLocation
+                  - s3:ListBucket
+                  - s3:ListBucketMultipartUploads
                 Resource: !GetAtt SnapshotBucket.Arn
-              - Sid: ListTaeriaBackupPrefix
-                Effect: Allow
-                Action: s3:ListBucket
-                Resource: !GetAtt SnapshotBucket.Arn
-                Condition:
-                  StringLike:
-                    s3:prefix:
-                      - postgres/taeria
-                      - postgres/taeria/*
               - Sid: ManageTaeriaBackupObjects
                 Effect: Allow
                 Action:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:AbortMultipartUpload
+                  - s3:ListMultipartUploadParts
                   - s3:DeleteObject
                 Resource: !Sub "${SnapshotBucket.Arn}/postgres/taeria/*"
 Outputs:
