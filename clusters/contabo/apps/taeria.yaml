@@ -72,6 +72,9 @@ spec:
     server: https://kubernetes.default.svc
     namespace: taeria-prod
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - ApplyOutOfSyncOnly=true
       - PruneLast=true
