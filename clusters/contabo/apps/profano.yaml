@@ -1,0 +1,59 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: profano
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
+spec:
+  description: Portal e dados exclusivos do Profano
+  sourceRepos: [git@github.com:KAeHM/profano-infra.git]
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: profano-prod
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - { group: "", kind: ConfigMap }
+    - { group: "", kind: Secret }
+    - { group: "", kind: Service }
+    - { group: apps, kind: Deployment }
+    - { group: batch, kind: Job }
+    - { group: bitnami.com, kind: SealedSecret }
+    - { group: barmancloud.cnpg.io, kind: ObjectStore }
+    - { group: monitoring.coreos.com, kind: PrometheusRule }
+    - { group: monitoring.coreos.com, kind: PodMonitor }
+    - { group: monitoring.coreos.com, kind: ServiceMonitor }
+    - { group: networking.k8s.io, kind: Ingress }
+    - { group: networking.k8s.io, kind: NetworkPolicy }
+    - { group: policy, kind: PodDisruptionBudget }
+    - { group: postgresql.cnpg.io, kind: Cluster }
+    - { group: postgresql.cnpg.io, kind: ScheduledBackup }
+    - { group: postgresql.cnpg.io, kind: Backup }
+  orphanedResources:
+    warn: true
+    ignore:
+      - { group: "", kind: ConfigMap, name: cnpg-default-monitoring }
+      - { group: "", kind: Secret, name: profano-web-tls }
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: profano-prod
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "51"
+spec:
+  project: profano
+  source:
+    repoURL: git@github.com:KAeHM/profano-infra.git
+    targetRevision: main
+    path: environments/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: profano-prod
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - PruneLast=true
