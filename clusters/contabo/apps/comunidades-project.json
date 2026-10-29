@@ -1,0 +1,108 @@
+{
+  "apiVersion": "argoproj.io/v1alpha1",
+  "kind": "AppProject",
+  "metadata": {
+    "name": "comunidades",
+    "namespace": "argocd",
+    "annotations": {
+      "argocd.argoproj.io/sync-wave": "50"
+    }
+  },
+  "spec": {
+    "description": "Comunidades privadas com voz, webcam e tela — piloto",
+    "sourceRepos": [
+      "git@github.com:KAeHM/comunidades-infra.git"
+    ],
+    "destinations": [
+      {
+        "server": "https://kubernetes.default.svc",
+        "namespace": "comunidades-prod"
+      },
+      {
+        "server": "https://kubernetes.default.svc",
+        "namespace": "comunidades-media"
+      }
+    ],
+    "clusterResourceWhitelist": [
+      {
+        "group": "",
+        "kind": "Namespace"
+      }
+    ],
+    "namespaceResourceWhitelist": [
+      {
+        "group": "",
+        "kind": "ConfigMap"
+      },
+      {
+        "group": "",
+        "kind": "Secret"
+      },
+      {
+        "group": "",
+        "kind": "Service"
+      },
+      {
+        "group": "apps",
+        "kind": "Deployment"
+      },
+      {
+        "group": "bitnami.com",
+        "kind": "SealedSecret"
+      },
+      {
+        "group": "monitoring.coreos.com",
+        "kind": "PodMonitor"
+      },
+      {
+        "group": "monitoring.coreos.com",
+        "kind": "ServiceMonitor"
+      },
+      {
+        "group": "networking.k8s.io",
+        "kind": "Ingress"
+      },
+      {
+        "group": "networking.k8s.io",
+        "kind": "NetworkPolicy"
+      },
+      {
+        "group": "policy",
+        "kind": "PodDisruptionBudget"
+      },
+      {
+        "group": "postgresql.cnpg.io",
+        "kind": "Cluster"
+      },
+      {
+        "group": "traefik.io",
+        "kind": "IngressRouteTCP"
+      }
+    ],
+    "orphanedResources": {
+      "warn": true,
+      "ignore": [
+        {
+          "group": "",
+          "kind": "ConfigMap",
+          "name": "cnpg-default-monitoring"
+        },
+        {
+          "group": "",
+          "kind": "Secret",
+          "name": "comunidades-web-tls"
+        },
+        {
+          "group": "",
+          "kind": "Secret",
+          "name": "comunidades-rtc-tls"
+        },
+        {
+          "group": "",
+          "kind": "Secret",
+          "name": "comunidades-turn-tls"
+        }
+      ]
+    }
+  }
+}
