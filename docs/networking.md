@@ -20,9 +20,12 @@ O add-on Contabo Private Networking não foi contratado.
 - Ambos aceitam TCP 22 somente do CIDR administrativo configurado no painel.
 - Ambos aceitam UDP 51820 somente dos quatro IPv4 públicos das VPS.
 - Apenas o firewall de borda aceita TCP 80 e 443 de qualquer IPv4.
+- O firewall de borda também aceita UDP 7882 (`Comunidades WebRTC UDP`) e TCP 7881 (`Comunidades WebRTC TCP`) de qualquer IPv4 para a mídia do piloto Comunidades, executada no `worker-1`. Regras confirmadas como ACTIVE no painel em 29/10/2026; os demais acessos foram preservados.
 - Todo o restante do tráfego de entrada é descartado.
 
 Se o IP público administrativo mudar, atualize a regra `Admin SSH` nos dois firewalls antes de abrir uma nova sessão.
+
+O Comunidades oferece TURN/TLS pela porta 443 existente: Traefik termina TLS por SNI em `turn-comunidades.kaehm.dev` e encaminha para 5349 internamente. Não abrir 5349 nem a faixa de relay no firewall público. O Ingress que mantém DNS/certificado de TURN usa somente o entrypoint `web`, para não interceptar a rota TCP de mídia no `websecure`. Testes de quatro clientes com duas telas, webcam e áudio sintéticos passaram com TURN obrigatório e conexão direta sem TURN; tráfego UDP bidirecional foi observado no worker. TCP 7881 aceitou conexão externa, sem teste de mídia com ICE/TCP obrigatório. Configuração e evidências detalhadas ficam no repositório privado `KAeHM/comunidades-infra`.
 
 ## Portas internas
 
