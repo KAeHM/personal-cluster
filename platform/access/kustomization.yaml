@@ -5,3 +5,4 @@ resources:
   - profano-infra-repository-sealed.json
   - argocd-server-config.yaml
   - argocd-ingress.yaml
+  - comunidades-infra-repository-sealed.json
