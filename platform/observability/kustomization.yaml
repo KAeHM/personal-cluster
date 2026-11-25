@@ -4,3 +4,4 @@ resources:
   - argocd-servicemonitor.yaml
   - traefik-metrics.yaml
   - platform-alerts.yaml
+  - call-alerts.yaml
