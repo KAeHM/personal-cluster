@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: comunidades-call
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: call.video
+      rules:
+        - alert: OrbitaCallVideoStartupStalled
+          expr: sum by (source) (increase(social_rtc_video_start_seconds_count{job="comunidades-web",stage="stalled"}[5m])) >= 2
+          labels:
+            severity: warning
+          annotations:
+            summary: "Duas ou mais tentativas de receber {{ $labels.source }} ficaram sem primeiro quadro em cinco minutos"
+            dashboard: https://grafana.kaehm.dev/d/orbita-calls
